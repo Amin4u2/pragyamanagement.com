@@ -2,10 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
   <meta name="theme-color" content="#0a0a0f"/>
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Pragya"/>
+  <meta name="application-name" content="Pragya Manager"/>
+  <meta name="description" content="Pragya transport business management — track drivers, sales and work-and-pay payments"/>
+  <meta name="msapplication-TileColor" content="#0a0a0f"/>
+  <!-- PWA Manifest (inline as data URI so it works from a single HTML file) -->
+  <link rel="manifest" id="pwa-manifest"/>
+  <!-- Apple Touch Icons (generated via JS below) -->
+  <link rel="apple-touch-icon" id="apple-icon"/>
   <title>Pragya Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
@@ -207,6 +216,137 @@
 </head>
 <body>
 <div id="root"><div class="loading"><div class="spinner"></div><div style="font-size:10px;letter-spacing:3px;color:var(--text3)">LOADING…</div></div></div>
+
+<!-- ═══════════════════════════════════════
+     PWA SETUP — Manifest + Icons + Service Worker
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  // ── 1. Generate app icon using Canvas ──────────────────────
+  function makeIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    // Background
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, size, size);
+    // Gold circle
+    ctx.fillStyle = '#f5a623';
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.42, 0, Math.PI*2);
+    ctx.fill();
+    // Rickshaw emoji text
+    ctx.fillStyle = '#0a0a0f';
+    ctx.font = `bold ${size*0.38}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🛺', size/2, size/2 + size*0.03);
+    return c.toDataURL('image/png');
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  // Set apple touch icon
+  document.getElementById('apple-icon').href = icon192;
+
+  // ── 2. Inject Web App Manifest ─────────────────────────────
+  const manifest = {
+    name: 'Pragya Manager',
+    short_name: 'Pragya',
+    description: 'Pragya transport business management',
+    start_url: './',
+    scope: './',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#0a0a0f',
+    theme_color: '#0a0a0f',
+    categories: ['business', 'finance'],
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+  // ── 3. Register Service Worker ─────────────────────────────
+  if ('serviceWorker' in navigator) {
+    // Inline service worker as a blob
+    const swCode = `
+const CACHE = 'pragya-v3';
+const SHELL = [
+  self.location.href.replace('sw-inline','').split('?')[0]
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', e => {
+  // Only cache same-origin requests, pass through Firebase/Google calls
+  const url = new URL(e.request.url);
+  if (url.origin !== location.origin) return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const fresh = fetch(e.request).then(res => {
+        if (res.ok) caches.open(CACHE).then(c => c.put(e.request, res.clone()));
+        return res;
+      });
+      return cached || fresh;
+    })
+  );
+});
+`;
+    const swBlob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(swBlob);
+    navigator.serviceWorker.register(swUrl, {scope: './'})
+      .then(reg => {
+        console.log('[PWA] Service worker registered, scope:', reg.scope);
+        reg.addEventListener('updatefound', () => {
+          reg.installing.addEventListener('statechange', e => {
+            if(e.target.state === 'installed' && navigator.serviceWorker.controller) {
+              // New version available — show refresh prompt
+              if(confirm('New version of Pragya Manager available! Reload to update?')) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+      })
+      .catch(e => console.warn('[PWA] SW registration failed:', e));
+  }
+
+  // ── 4. Install prompt (Android Chrome) ────────────────────
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Expose globally so React can trigger it
+    window.__pwaPrompt = () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; window.__pwaPrompt = null; });
+    };
+    // Dispatch event so React component can show install button
+    window.dispatchEvent(new Event('pwa-installable'));
+  });
+  window.addEventListener('appinstalled', () => {
+    window.__pwaPrompt = null;
+    window.dispatchEvent(new Event('pwa-installed'));
+  });
+})();
+</script>
 
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -578,6 +718,15 @@ function Dashboard({session,onLogout}){
   const [importMsg,setImportMsg]=useState(null);
   const [toast,setToast]=useState(false);
   const showToast=useCallback(()=>{ setToast(true); setTimeout(()=>setToast(false),1900); },[]);
+  const [installable,setInstallable]=useState(false);
+  const [showInstallBanner,setShowInstallBanner]=useState(false);
+  useEffect(()=>{
+    const onInstallable=()=>{ setInstallable(true); setShowInstallBanner(true); };
+    const onInstalled=()=>{ setInstallable(false); setShowInstallBanner(false); };
+    window.addEventListener('pwa-installable',onInstallable);
+    window.addEventListener('pwa-installed',onInstalled);
+    return()=>{ window.removeEventListener('pwa-installable',onInstallable); window.removeEventListener('pwa-installed',onInstalled); };
+  },[]);
 
   // Single source of truth: onSnapshot handles BOTH initial load AND live updates
   // This is the correct pattern — no separate dbGet needed
@@ -767,6 +916,9 @@ function Dashboard({session,onLogout}){
             <div className={`sync-dot ${syncState}`}/>
             <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
           </div>
+          {installable&&<button className="btn" style={{width:"100%",marginBottom:10,fontSize:10,padding:"8px 12px"}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>
+            ⬇ Install App
+          </button>}
           <div className="sb-user">@<span>{u}</span></div>
           <button className="logout-btn" onClick={onLogout}><Ic name="logout" size={10}/> Sign Out</button>
         </div>
@@ -787,6 +939,16 @@ function Dashboard({session,onLogout}){
           </div>
         </div>
 
+        {showInstallBanner&&<div style={{background:"linear-gradient(90deg,#1a1200,#0a0a0f)",borderBottom:"1px solid var(--gold)",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexShrink:0}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🛺 Install Pragya Manager</div>
+            <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>Add to home screen for app-like experience</div>
+          </div>
+          <div style={{display:"flex",gap:6,flexShrink:0}}>
+            <button className="btn" style={{padding:"7px 14px",fontSize:10}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>Install</button>
+            <button className="btn-outline" style={{padding:"7px 10px",fontSize:10}} onClick={()=>setShowInstallBanner(false)}>✕</button>
+          </div>
+        </div>}
         <div className="content" ref={contentRef}>
           <div key={view}>
           {view==="dashboard"&&<VDash regD={regD} wapD={wapD} periodSales={periodSales} yearSales={yearSales} wapBal={wapBal} totOwed={totOwed} sales={sales} {...period}/>}
@@ -1254,9 +1416,54 @@ function VReports({regD,wapD,drivers,sales,wap,selYear,selMonth,setSelYear,setSe
   );
 }
 
+function InstallGuide(){
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid=/Android/.test(navigator.userAgent);
+  const isInstalled=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+  if(isInstalled) return(
+    <div style={{background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:8,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:10}}>
+      <span style={{fontSize:20}}>✅</span>
+      <div><div style={{fontSize:12,fontWeight:700,color:"var(--green)"}}>App is Installed</div><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>Running in standalone mode</div></div>
+    </div>
+  );
+  if(isAndroid) return(
+    <div style={{background:"#f5a62311",border:"1px solid #f5a62333",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--gold)",marginBottom:8}}>📱 Install on Android</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        Chrome will show an <strong style={{color:"var(--text)"}}>Install App</strong> banner or button automatically.<br/>
+        If you don't see it: tap the <strong style={{color:"var(--text)"}}>3-dot menu ⋮</strong> → <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
+        The app will install with its own icon, open fullscreen, and work like a native app.
+      </div>
+    </div>
+  );
+  if(isIOS) return(
+    <div style={{background:"#f5a62311",border:"1px solid #f5a62333",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--gold)",marginBottom:8}}>🍎 Install on iPhone/iPad</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        1. Tap the <strong style={{color:"var(--text)"}}>Share button</strong> <span style={{color:"var(--gold)"}}>⬆</span> at the bottom of Safari<br/>
+        2. Scroll down and tap <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
+        3. Tap <strong style={{color:"var(--text)"}}>Add</strong> in the top right<br/>
+        The Pragya icon will appear on your home screen — tap it to open like a normal app.
+      </div>
+    </div>
+  );
+  return(
+    <div style={{background:"#3b82f611",border:"1px solid #3b82f633",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:6}}>💻 Install on Desktop (Chrome/Edge)</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install Pragya Manager</strong>.
+      </div>
+    </div>
+  );
+}
+
 function VTransfer({drivers,sales,wap,session,onExport,onImport}){
   return(
     <div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="sec-title">Install App</div>
+        <InstallGuide/>
+      </div>
       <div className="card" style={{marginBottom:14}}>
         <div className="sec-title">Export Data to Excel</div>
         <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:16}}>
