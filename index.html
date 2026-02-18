@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <title>Pragya Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -18,11 +19,36 @@
     }
     html,body,#root{height:100%;}
     body{background:var(--bg);color:var(--text);font-family:var(--fm);-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
-    input,select,button,textarea{font-family:var(--fm);}
+    input,select,button{font-family:var(--fm);}
     input[type=number]::-webkit-inner-spin-button{opacity:1;}
     ::-webkit-scrollbar{width:4px;height:4px;}
     ::-webkit-scrollbar-track{background:var(--bg2);}
     ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+    /* SETUP SCREEN */
+    .setup-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 0%,#001a10 0%,var(--bg) 60%);}
+    .setup-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:560px;}
+    .setup-step{display:flex;gap:14px;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+    .step-num{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#0a0a0f;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--fd);}
+    .step-body{font-size:12px;color:var(--text2);line-height:1.7;}
+    .step-body a{color:var(--gold);text-decoration:none;}
+    .step-body strong{color:var(--text);}
+    .cfg-inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:10px 12px;font-size:12px;font-family:var(--fm);outline:none;margin-top:6px;transition:border-color .2s;}
+    .cfg-inp:focus{border-color:var(--gold);}
+    .cfg-inp::placeholder{color:var(--text3);}
+
+    /* SYNC INDICATOR */
+    .sync-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:999;background:transparent;transition:background .3s;}
+    .sync-bar.saving{background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));background-size:200%;animation:syncPulse 1.2s linear infinite;}
+    .sync-bar.saved{background:var(--green);}
+    .sync-bar.error{background:var(--red);}
+    @keyframes syncPulse{0%{background-position:0%}100%{background-position:200%}}
+    .sync-status{font-size:9px;letter-spacing:2px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+    .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+    .sync-dot.saving{background:var(--gold);animation:blink .8s infinite;}
+    .sync-dot.saved{background:var(--green);}
+    .sync-dot.error{background:var(--red);}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
     /* AUTH */
     .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,#1a1200 0%,var(--bg) 60%);}
@@ -41,12 +67,12 @@
     .auth-err{background:#ef444422;border:1px solid #ef444444;border-radius:6px;padding:10px 14px;font-size:11px;color:var(--red);margin-bottom:14px;}
     .auth-ok{background:#22c55e22;border:1px solid #22c55e44;border-radius:6px;padding:10px 14px;font-size:11px;color:var(--green);margin-bottom:14px;}
 
-    /* SHELL */
+    /* APP SHELL */
     .app{display:flex;height:100vh;overflow:hidden;}
     .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
     .sb-logo{padding:20px 20px 18px;border-bottom:1px solid var(--border);}
     .sb-logo-main{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--gold);}
-    .sb-logo-sub{font-size:9px;letter-spacing:2px;color:var(--text3);margin-top:3px;line-height:1.4;}
+    .sb-logo-sub{font-size:9px;letter-spacing:2px;color:var(--text3);margin-top:3px;line-height:1.5;}
     .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border-left:2px solid transparent;transition:all .15s;}
     .nav-item.active{color:var(--gold);background:#f5a62308;border-left-color:var(--gold);}
     .nav-item:hover:not(.active){color:var(--text2);background:#ffffff04;}
@@ -60,7 +86,7 @@
     .topbar-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
     .content{flex:1;overflow-y:auto;padding:20px 24px;}
 
-    /* BOTTOM NAV (mobile) */
+    /* BOTTOM NAV */
     .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:50;height:var(--nh);}
     .bn-inner{display:flex;height:100%;}
     .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);font-size:7px;letter-spacing:1px;text-transform:uppercase;border:none;background:none;font-family:var(--fm);padding:0;}
@@ -72,7 +98,7 @@
     .period-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
     .period-sel{background:var(--bg);border:1px solid var(--gold);border-radius:6px;color:var(--gold);padding:6px 10px;font-size:12px;font-family:var(--fm);outline:none;font-weight:600;cursor:pointer;}
 
-    /* CARDS & COMMON */
+    /* COMMON */
     .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
     .sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
     .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
@@ -87,35 +113,25 @@
     tr:last-child td{border-bottom:none;}
     tfoot td{border-top:2px solid var(--border2);border-bottom:none;color:var(--text);font-weight:700;}
     .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;letter-spacing:1px;font-weight:700;}
-
-    /* BUTTONS */
     .btn{padding:9px 16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:#0a0a0f;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-family:var(--fd);transition:opacity .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
     .btn:hover{opacity:.9;}
-    .btn-green{background:var(--green)!important;}
     .btn-blue{background:var(--blue)!important;color:#fff!important;}
     .btn-sm{padding:5px 11px;font-size:9px;letter-spacing:1px;text-transform:uppercase;background:transparent;color:var(--gold);border:1px solid #f5a62344;border-radius:4px;cursor:pointer;font-family:var(--fm);}
     .btn-danger{padding:5px 11px;font-size:9px;background:transparent;color:var(--red);border:1px solid #ef444444;border-radius:4px;cursor:pointer;font-family:var(--fm);}
     .btn-outline{padding:7px 14px;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-family:var(--fm);display:inline-flex;align-items:center;gap:6px;}
     .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
-
-    /* INPUTS */
     .inp{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:10px 12px;font-size:13px;font-family:var(--fm);width:100%;outline:none;transition:border-color .2s;}
     .inp:focus{border-color:var(--gold);}
     .sel{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px 12px;font-size:12px;font-family:var(--fm);outline:none;}
     .wk-inp{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:6px 4px;font-size:12px;font-family:var(--fm);width:100%;text-align:center;outline:none;}
     .wk-inp:focus{border-color:var(--gold);}
     .lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block;}
-
-    /* MODAL */
     .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
     .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;}
-    .modal-lg{max-width:780px;}
     .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
     .modal-title{font-family:var(--fd);font-size:16px;font-weight:700;}
     .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
     .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
-
-    /* DRIVER CARDS */
     .drv-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
     .info-row{display:flex;gap:8px;font-size:11px;color:var(--text3);margin-top:5px;flex-wrap:wrap;}
     .prog-track{background:var(--bg);border-radius:99px;height:5px;}
@@ -123,8 +139,6 @@
     .sales-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
     .wks-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px;}
     .wk-box label{font-size:8px;letter-spacing:1px;color:var(--text3);margin-bottom:3px;display:block;text-align:center;}
-
-    /* REPORT SPECIFIC */
     .report-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
     .report-tab{flex:1;padding:10px 6px;text-align:center;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--text3);background:transparent;border:none;font-family:var(--fm);transition:all .2s;border-right:1px solid var(--border);}
     .report-tab:last-child{border-right:none;}
@@ -133,7 +147,7 @@
     .bar-label{font-size:11px;color:var(--text2);width:80px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .bar-track{flex:1;background:var(--bg);border-radius:4px;height:22px;position:relative;overflow:hidden;}
     .bar-fill{height:100%;border-radius:4px;transition:width .5s;display:flex;align-items:center;padding-left:8px;}
-    .bar-fill span{font-size:10px;font-weight:600;color:#0a0a0f;white-space:nowrap;}
+    .bar-fill span{font-size:10px;font-weight:600;white-space:nowrap;}
     .bar-val{font-size:11px;color:var(--gold);font-weight:700;width:90px;text-align:right;flex-shrink:0;}
     .rank-1{background:linear-gradient(90deg,var(--gold),var(--gold2));}
     .rank-2{background:linear-gradient(90deg,#9994aa,#ccc);}
@@ -149,21 +163,17 @@
     .import-zone{border:2px dashed var(--border2);border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color .2s;}
     .import-zone:hover,.import-zone.drag{border-color:var(--gold);background:#f5a62308;}
     .import-zone input{display:none;}
-    .chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:9px;letter-spacing:1px;background:var(--bg);border:1px solid var(--border2);color:var(--text3);margin:3px 3px 0 0;}
-    .chip.ok{border-color:#22c55e44;color:var(--green);background:#22c55e11;}
-    .chip.warn{border-color:#f5a62344;color:var(--gold);background:#f5a62311;}
+    .dev-pill{display:inline-block;padding:2px 6px;background:#f5a62322;border:1px solid #f5a62355;border-radius:3px;font-size:8px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-left:6px;vertical-align:middle;}
+    .notice{padding:10px 14px;border-radius:6px;font-size:11px;margin-bottom:14px;}
+    .notice-ok{background:#22c55e11;border:1px solid #22c55e33;color:var(--green);}
+    .notice-err{background:#ef444411;border:1px solid #ef444433;color:var(--red);}
     .empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
     .empty-ico{font-size:40px;margin-bottom:12px;}
-    .dev-pill{display:inline-block;padding:2px 6px;background:#f5a62322;border:1px solid #f5a62355;border-radius:3px;font-size:8px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-left:6px;vertical-align:middle;}
     .loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;background:var(--bg);}
     .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg);}}
     .fade-in{animation:fadeIn .25s ease;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-    .notice{padding:10px 14px;border-radius:6px;font-size:11px;margin-bottom:14px;}
-    .notice-ok{background:#22c55e11;border:1px solid #22c55e33;color:var(--green);}
-    .notice-warn{background:#f5a62311;border:1px solid #f5a62333;color:var(--gold);}
-    .notice-err{background:#ef444411;border:1px solid #ef444433;color:var(--red);}
 
     @media(max-width:768px){
       .sidebar{display:none;}
@@ -176,34 +186,65 @@
       .modal-grid{grid-template-columns:1fr;}
       .topbar-title{font-size:13px;}
       .hide-mob{display:none!important;}
-      .report-tab{font-size:9px;padding:8px 4px;letter-spacing:1px;}
+      .report-tab{font-size:9px;padding:8px 3px;}
     }
     @media(max-width:420px){
-      .wks-grid{gap:3px;}
-      .wk-inp{font-size:10px;padding:5px 2px;}
+      .wks-grid{gap:3px;} .wk-inp{font-size:10px;padding:5px 2px;}
       .kpi-grid{grid-template-columns:1fr 1fr;}
-      .stats-grid{gap:5px;}
-      .bar-label{width:60px;font-size:10px;}
     }
   </style>
 </head>
 <body>
 <div id="root"><div class="loading"><div class="spinner"></div><div style="font-size:10px;letter-spacing:3px;color:var(--text3)">LOADING…</div></div></div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <!-- React + Babel + SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+<!-- ══════════════════════════════════════════════
+     STEP 1: PASTE YOUR FIREBASE CONFIG BELOW
+     Get it from https://console.firebase.google.com
+     Project Settings > Your apps > SDK setup > Config
+     ══════════════════════════════════════════════ -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBJAUFdYgsDt7jSI4m74SK8W6uHJWIOTvM",
+  authDomain:        "pragya-manager.firebaseapp.com",
+  projectId:         "pragya-manager",
+  storageBucket:     "pragya-manager.firebasestorage.app",
+  messagingSenderId: "1014139558240",
+  appId:             "1:1014139558240:web:5a37dabe4dad2ed5c02605"
+};
+
+// Detect if config has been filled in
+const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes("PASTE_YOUR");
+
+let db = null;
+if (FIREBASE_CONFIGURED) {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    // Enable offline persistence so app works without internet
+    db.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  } catch(e) { console.warn("Firebase init failed:", e); }
+}
+</script>
+
 <script type="text/babel">
-const {useState,useEffect,useRef}=React;
+const {useState,useEffect,useRef,useCallback}=React;
+
 const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
 const CY=new Date().getFullYear();
 const YEARS=Array.from({length:7},(_,i)=>(CY-3+i).toString());
 const DCOLORS=["BLACK","GREEN","RED","YELLOW","BLUE","ORANGE","WHITE","PURPLE"];
 const CHEX={BLACK:"#94a3b8",GREEN:"#22c55e",RED:"#ef4444",YELLOW:"#eab308",BLUE:"#3b82f6",ORANGE:"#f97316",WHITE:"#e2e8f0",PURPLE:"#a855f7"};
 const DEV_U="amisco4u2", DEV_P="Amiena702$";
+
 const DEV_DRV=[
   {id:1,color:"BLACK", name:"PHILIP", tel:"0557047868",tracker:"0248732636",reg:"M-25-AP 691",workAndPay:false,wapAmount:0},
   {id:2,color:"GREEN", name:"DOSTY",  tel:"0552396523",tracker:"0546918078",reg:"M-25-AP 784",workAndPay:false,wapAmount:0},
@@ -223,25 +264,86 @@ const DEV_WAP={
   6:{"2025":{September:{1:1400,2:1200,3:1000,4:1200,5:1200},October:{1:1200,2:1200,3:1200,4:600},November:{1:1200,2:1200,3:1200,4:1200},December:{1:1200,2:1200,3:1200,4:1200,5:1200}}},
 };
 
-// ── helpers ──────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────
 const fmt=n=>`GH₵ ${Number(n||0).toLocaleString()}`;
-const fmtN=n=>Number(n||0).toLocaleString();
 const sumO=o=>Object.values(o||{}).reduce((a,b)=>a+(Number(b)||0),0);
+const pct=(v,mx)=>mx>0?Math.min(100,(v/mx)*100):0;
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h.toString(36);}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function lsGet(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}
-function pct(v,max){return max>0?Math.min(100,(v/max)*100):0;}
 
-function bootstrap(){
-  const users=lsGet("pg-users")||{};
-  if(!users[DEV_U]){users[DEV_U]={hash:hashStr(DEV_P),business:"Pragya Transport (Dev)",isDev:true,created:0};lsSet("pg-users",users);}
-  if(!lsGet(`${DEV_U}-drivers`))lsSet(`${DEV_U}-drivers`,DEV_DRV);
-  if(!lsGet(`${DEV_U}-sales`))  lsSet(`${DEV_U}-sales`,DEV_SALES);
-  if(!lsGet(`${DEV_U}-wap`))    lsSet(`${DEV_U}-wap`,DEV_WAP);
+// ── Cloud DB layer ────────────────────────────────────────────
+// All reads/writes go through here. Falls back to localStorage if Firebase not set up.
+async function dbGet(userKey, field) {
+  if (db) {
+    try {
+      const doc = await db.collection("users").doc(userKey).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data[field] !== undefined) return data[field];
+      }
+    } catch(e) {}
+  }
+  return lsGet(`${userKey}-${field}`);
 }
-bootstrap();
 
-// ── icons ─────────────────────────────────────────────────────────────────
+async function dbSet(userKey, field, value) {
+  // Always write to localStorage as cache
+  lsSet(`${userKey}-${field}`, value);
+  // Write to Firestore if available
+  if (db) {
+    try {
+      await db.collection("users").doc(userKey).set({ [field]: value }, { merge: true });
+    } catch(e) { console.warn("Firestore write failed:", e); }
+  }
+}
+
+// Users registry
+async function getUsers() {
+  if (db) {
+    try {
+      const doc = await db.collection("meta").doc("users").get();
+      if (doc.exists) return doc.data() || {};
+    } catch(e) {}
+  }
+  return lsGet("pg-users") || {};
+}
+async function setUsers(users) {
+  lsSet("pg-users", users);
+  if (db) {
+    try { await db.collection("meta").doc("users").set(users); } catch(e) {}
+  }
+}
+
+// Session (always local)
+function getSession() { return lsGet("pg-session"); }
+function setSession(s) { lsSet("pg-session", s); }
+
+// Debounce helper
+function useDebouncedCallback(fn, delay) {
+  const timer = useRef(null);
+  return useCallback((...args) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(...args), delay);
+  }, [fn, delay]);
+}
+
+// Bootstrap dev account
+async function bootstrap() {
+  const users = await getUsers();
+  if (!users[DEV_U]) {
+    users[DEV_U] = { hash: hashStr(DEV_P), business: "Pragya Transport (Dev)", isDev: true, created: 0 };
+    await setUsers(users);
+  }
+  const existing = await dbGet(DEV_U, "drivers");
+  if (!existing || existing.length === 0) {
+    await dbSet(DEV_U, "drivers", DEV_DRV);
+    await dbSet(DEV_U, "sales", DEV_SALES);
+    await dbSet(DEV_U, "wap", DEV_WAP);
+  }
+}
+
+// ── Icons ─────────────────────────────────────────────────────
 const PX={
   dashboard:"M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zM4 13a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z",
   drivers:"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
@@ -258,6 +360,7 @@ const PX={
   cal:"M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
   download:"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4",
   upload:"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12",
+  cloud:"M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z",
 };
 function Ic({name,size=16,color="currentColor"}){
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={PX[name]}/></svg>;
@@ -265,7 +368,7 @@ function Ic({name,size=16,color="currentColor"}){
 function CDot({color}){return <div style={{width:9,height:9,borderRadius:"50%",background:CHEX[color]||"#888",flexShrink:0}}/>;}
 function CBadge({color}){const h=CHEX[color]||"#888";return <span className="badge" style={{background:h+"22",color:color==="BLACK"?"#94a3b8":h,border:`1px solid ${h}44`}}>{color}</span>;}
 
-// ── Period Picker ─────────────────────────────────────────────────────────
+// ── Period Picker ─────────────────────────────────────────────
 function PeriodPicker({year,month,setYear,setMonth,label="PERIOD"}){
   return(
     <div className="period-bar">
@@ -281,95 +384,54 @@ function PeriodPicker({year,month,setYear,setMonth,label="PERIOD"}){
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  EXCEL EXPORT
-// ══════════════════════════════════════════════════════════════
-function exportToExcel(drivers,sales,wap,business){
-  const wb=XLSX.utils.book_new();
-  const gold="FF F5A623";
-  const hdr={font:{bold:true,color:{rgb:"000000"}},fill:{fgColor:{rgb:"F5A623"}},alignment:{horizontal:"center"}};
-  const hdr2={font:{bold:true,color:{rgb:"F5A623"}},fill:{fgColor:{rgb:"111118"}}};
-
-  // ── Sheet 1: Drivers ──
-  const dRows=[["#","NAME","COLOR","TEL","TRACKER","REG NO.","TYPE","W&P AMOUNT"]];
-  drivers.forEach((d,i)=>dRows.push([i+1,d.name,d.color,d.tel,d.tracker,d.reg,d.workAndPay?"WORK & PAY":"REGULAR",d.workAndPay?d.wapAmount:""]));
-  const ws1=XLSX.utils.aoa_to_sheet(dRows);
-  ws1["!cols"]=[{wch:4},{wch:14},{wch:9},{wch:14},{wch:14},{wch:14},{wch:12},{wch:14}];
-  XLSX.utils.book_append_sheet(wb,ws1,"Drivers");
-
-  // ── Sheet 2: Sales by Month (all years) ──
-  const regD=drivers.filter(d=>!d.workAndPay);
-  const allYears=[...new Set(Object.values(sales).flatMap(y=>Object.keys(y)))].sort();
-  const sRows=[["DRIVER","YEAR","MONTH","WEEK 1","WEEK 2","WEEK 3","WEEK 4","WEEK 5","MONTH TOTAL"]];
-  regD.forEach(d=>{
-    allYears.forEach(yr=>{
-      MONTHS.forEach(m=>{
-        const wks=((sales[d.id]||{})[yr]||{})[m]||{};
-        const tot=sumO(wks);
-        if(!tot)return;
-        sRows.push([d.name,yr,m,wks[1]||0,wks[2]||0,wks[3]||0,wks[4]||0,wks[5]||0,tot]);
-      });
-    });
-  });
-  // Summary rows
-  sRows.push([]);
-  sRows.push(["YEAR SUMMARY","","","","","","","",""]);
-  allYears.forEach(yr=>{
-    MONTHS.forEach(m=>{
-      const yrMthTotal=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[yr]||{})[m]||{}),0);
-      if(!yrMthTotal)return;
-      sRows.push([`ALL DRIVERS`,yr,m,"","","","","",yrMthTotal]);
-    });
-  });
-  const ws2=XLSX.utils.aoa_to_sheet(sRows);
-  ws2["!cols"]=[{wch:14},{wch:6},{wch:11},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws2,"Sales");
-
-  // ── Sheet 3: Monthly Summary pivot ──
-  const pivRows=[["DRIVER",...MONTHS,"YEAR TOTAL"]];
-  const pivYr=allYears[allYears.length-1]||CY.toString();
-  regD.forEach(d=>{
-    const row=[d.name];
-    let yr_t=0;
-    MONTHS.forEach(m=>{const mt=sumO(((sales[d.id]||{})[pivYr]||{})[m]||{});row.push(mt||0);yr_t+=mt;});
-    row.push(yr_t);
-    pivRows.push(row);
-  });
-  // Totals row
-  const totRow=["TOTAL"];
-  MONTHS.forEach(m=>{totRow.push(regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[pivYr]||{})[m]||{}),0));});
-  totRow.push(regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[pivYr]||{})[m]||{}),0),0));
-  pivRows.push(totRow);
-  const ws3=XLSX.utils.aoa_to_sheet(pivRows);
-  ws3["!cols"]=[{wch:14},...MONTHS.map(()=>({wch:9})),{wch:11}];
-  XLSX.utils.book_append_sheet(wb,ws3,`${pivYr} Summary`);
-
-  // ── Sheet 4: Work & Pay ──
-  const wapD=drivers.filter(d=>d.workAndPay);
-  const wRows=[["DRIVER","YEAR","MONTH","WK1","WK2","WK3","WK4","WK5","MONTH PAID","CUMULATIVE PAID","REMAINING BALANCE"]];
-  wapD.forEach(d=>{
-    let cum=0;
-    Object.keys(wap[d.id]||{}).sort().forEach(yr=>{
-      MONTHS.forEach(m=>{
-        const mw=((wap[d.id]||{})[yr]||{})[m]||{};
-        const mp=sumO(mw);
-        if(!mp)return;
-        cum+=mp;
-        wRows.push([d.name,yr,m,mw[1]||0,mw[2]||0,mw[3]||0,mw[4]||0,mw[5]||0,mp,cum,d.wapAmount-cum]);
-      });
-    });
-  });
-  const ws4=XLSX.utils.aoa_to_sheet(wRows);
-  ws4["!cols"]=[{wch:12},{wch:6},{wch:11},{wch:7},{wch:7},{wch:7},{wch:7},{wch:7},{wch:11},{wch:15},{wch:18}];
-  XLSX.utils.book_append_sheet(wb,ws4,"Work & Pay");
-
-  const date=new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb,`Pragya_Report_${business.replace(/\s+/g,"_")}_${date}.xlsx`);
+// ── Setup Screen (shown when Firebase not configured) ─────────
+function SetupScreen(){
+  return(
+    <div className="setup-wrap fade-in">
+      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:6}}>🛺 Pragya Manager</div>
+      <div style={{fontSize:10,letterSpacing:4,color:"var(--text3)",marginBottom:32,textTransform:"uppercase"}}>One-time Firebase Setup Required</div>
+      <div className="setup-card">
+        <div style={{fontFamily:"var(--fd)",fontSize:18,fontWeight:700,marginBottom:20,color:"var(--text)"}}>Connect Cloud Sync in 5 minutes</div>
+        <div className="setup-step">
+          <div className="step-num">1</div>
+          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it <strong>pragya-manager</strong>, skip Google Analytics, then click <strong>Create project</strong>.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">2</div>
+          <div className="step-body">Inside your project, click <strong>Build</strong> in the left menu then <strong>Firestore Database</strong>. Click <strong>Create database</strong>, choose <strong>Production mode</strong>, pick any location, then click <strong>Enable</strong>.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">3</div>
+          <div className="step-body">In Firestore, click <strong>Rules</strong> tab. Replace the content with this and click <strong>Publish</strong>:<br/>
+            <code style={{display:"block",marginTop:8,background:"var(--bg)",padding:"10px 12px",borderRadius:6,fontSize:11,color:"var(--gold)",lineHeight:1.8}}>
+              {"rules_version = '2';"}<br/>
+              {"service cloud.firestore {"}<br/>
+              {"  match /databases/{database}/documents {"}<br/>
+              {"    match /{document=**} {"}<br/>
+              {"      allow read, write: if true;"}<br/>
+              {"    }"}<br/>
+              {"  }"}<br/>
+              {"}"}
+            </code>
+          </div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">4</div>
+          <div className="step-body">Go to <strong>Project Settings</strong> (gear icon). Scroll down to <strong>Your apps</strong>, click the <strong>web icon (&lt;/&gt;)</strong>, register your app, then copy the <strong>firebaseConfig</strong> object values.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">5</div>
+          <div className="step-body">Open your <strong>index.html</strong> file (from GitHub). Find the section that says <strong>PASTE YOUR FIREBASE CONFIG BELOW</strong> and replace each <code style={{color:"var(--gold)"}}>PASTE_YOUR_..._HERE</code> value with the values from your Firebase config. Save the file and push to GitHub.</div>
+        </div>
+        <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:8,padding:"14px 16px",marginTop:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
+          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for Pragya Manager.
+        </div>
+      </div>
+    </div>
+  );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════════════════════════
+// ── AUTH ──────────────────────────────────────────────────────
 function Auth({onLogin}){
   const [tab,setTab]=useState("signin");
   const [f,setF]=useState({u:"",p:"",c:"",b:""});
@@ -377,30 +439,35 @@ function Auth({onLogin}){
   const [busy,setBusy]=useState(false);const [showP,setShowP]=useState(false);
   const sv=(k,v)=>setF(p=>({...p,[k]:v}));
 
-  function doSignIn(){
+  async function doSignIn(){
     setErr("");setBusy(true);
-    const users=lsGet("pg-users")||{};
+    const users=await getUsers();
     const ukey=f.u.toLowerCase().trim();
     const usr=users[ukey];
     if(!usr){setErr("Account not found. Please sign up.");setBusy(false);return;}
     if(usr.hash!==hashStr(f.p)){setErr("Incorrect password.");setBusy(false);return;}
     const sess={username:ukey,business:usr.business,isDev:!!usr.isDev};
-    lsSet("pg-session",sess);onLogin(sess);setBusy(false);
+    setSession(sess);onLogin(sess);setBusy(false);
   }
-  function doSignUp(){
+  async function doSignUp(){
     setErr("");setBusy(true);
     const ukey=f.u.toLowerCase().trim();
     if(!ukey||!f.p||!f.b.trim()){setErr("All fields are required.");setBusy(false);return;}
     if(ukey===DEV_U){setErr("That username is reserved.");setBusy(false);return;}
     if(f.p.length<6){setErr("Password must be at least 6 characters.");setBusy(false);return;}
     if(f.p!==f.c){setErr("Passwords do not match.");setBusy(false);return;}
-    const users=lsGet("pg-users")||{};
+    const users=await getUsers();
     if(users[ukey]){setErr("Username already taken.");setBusy(false);return;}
     users[ukey]={hash:hashStr(f.p),business:f.b.trim(),isDev:false,created:Date.now()};
-    lsSet("pg-users",users);
-    lsSet(`${ukey}-drivers`,[]);lsSet(`${ukey}-sales`,{});lsSet(`${ukey}-wap`,{});
+    await setUsers(users);
+    await dbSet(ukey,"drivers",[]);
+    await dbSet(ukey,"sales",{});
+    await dbSet(ukey,"wap",{});
     setOk("Account created! Signing you in…");
-    setTimeout(()=>{const sess={username:ukey,business:f.b.trim(),isDev:false};lsSet("pg-session",sess);onLogin(sess);},900);
+    setTimeout(()=>{
+      const sess={username:ukey,business:f.b.trim(),isDev:false};
+      setSession(sess);onLogin(sess);
+    },900);
     setBusy(false);
   }
   return(
@@ -432,124 +499,178 @@ function Auth({onLogin}){
         </button>
         {tab==="signin"&&<p style={{textAlign:"center",fontSize:10,color:"var(--text3)",marginTop:12}}>No account? <span style={{color:"var(--gold)",cursor:"pointer"}} onClick={()=>{setTab("signup");setErr("");}}>Sign up free</span></p>}
       </div>
+      <div style={{marginTop:16,display:"flex",alignItems:"center",gap:6,fontSize:10,color:db?"var(--green)":"var(--text3)"}}>
+        <Ic name="cloud" size={13} color={db?"var(--green)":"var(--text3)"}/>
+        {db?"Cloud sync active — data saves across all devices":"Offline mode — data saves on this device only"}
+      </div>
     </div>
   );
 }
 
-// ── Root ──────────────────────────────────────────────────────────────────
+// ── ROOT ──────────────────────────────────────────────────────
 function App(){
-  const [sess,setSess]=useState(null);const [ready,setReady]=useState(false);
-  useEffect(()=>{bootstrap();const s=lsGet("pg-session");setSess(s);setReady(true);},[]);
-  const login=u=>{lsSet("pg-session",u);setSess(u);};
-  const logout=()=>{lsSet("pg-session",null);setSess(null);};
+  const [sess,setSess]=useState(null);
+  const [ready,setReady]=useState(false);
+  const [setupDone]=useState(window.FIREBASE_CONFIGURED);
+
+  useEffect(()=>{
+    if(!FIREBASE_CONFIGURED){setReady(true);return;}
+    bootstrap().then(()=>{
+      const s=getSession();setSess(s);setReady(true);
+    });
+  },[]);
+
+  const login=u=>{setSession(u);setSess(u);};
+  const logout=()=>{setSession(null);setSess(null);};
+
+  if(!FIREBASE_CONFIGURED) return <SetupScreen/>;
   if(!ready)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING…</div></div>;
   if(!sess)return<Auth onLogin={login}/>;
   return<Dashboard session={sess} onLogout={logout}/>;
 }
 
-// ── Dashboard ─────────────────────────────────────────────────────────────
+// ── DASHBOARD ─────────────────────────────────────────────────
 function Dashboard({session,onLogout}){
   const u=session.username;
   const [view,setView]=useState("dashboard");
-  const [drivers,setDrivers]=useState(()=>lsGet(`${u}-drivers`)||[]);
-  const [sales,setSales]=useState(()=>lsGet(`${u}-sales`)||{});
-  const [wap,setWap]=useState(()=>lsGet(`${u}-wap`)||{});
+  const [drivers,setDrivers]=useState([]);
+  const [sales,setSales]=useState({});
+  const [wap,setWap]=useState({});
+  const [loaded,setLoaded]=useState(false);
   const [modal,setModal]=useState(null);
   const [selYear,setSelYear]=useState(CY.toString());
   const [selMonth,setSelMonth]=useState(MONTHS[new Date().getMonth()]);
+  const [syncState,setSyncState]=useState("saved"); // saving | saved | error
   const [importModal,setImportModal]=useState(false);
   const [importMsg,setImportMsg]=useState(null);
 
-  useEffect(()=>lsSet(`${u}-drivers`,drivers),[drivers]);
-  useEffect(()=>lsSet(`${u}-sales`,sales),[sales]);
-  useEffect(()=>lsSet(`${u}-wap`,wap),[wap]);
+  // Load data from cloud on mount
+  useEffect(()=>{
+    async function load(){
+      const d=await dbGet(u,"drivers");
+      const s=await dbGet(u,"sales");
+      const w=await dbGet(u,"wap");
+      setDrivers(d||[]);
+      setSales(s||{});
+      setWap(w||{});
+      setLoaded(true);
+    }
+    load();
+  },[u]);
 
-  const updSale=(did,yr,mo,wk,val)=>setSales(p=>({...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}}));
-  const updWap=(did,yr,mo,wk,val)=>setWap(p=>({...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}}));
+  // Real-time listener — updates when another device changes data
+  useEffect(()=>{
+    if(!db||!loaded)return;
+    const unsub=db.collection("users").doc(u).onSnapshot(doc=>{
+      if(doc.exists){
+        const data=doc.data();
+        if(data.drivers)setDrivers(data.drivers);
+        if(data.sales)setSales(data.sales);
+        if(data.wap)setWap(data.wap);
+      }
+    });
+    return()=>unsub();
+  },[u,loaded]);
+
+  // Auto-save: debounced 1.5s after any change
+  const saveDrivers=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"drivers",val);setSyncState("saved"); }
+    catch(e){ setSyncState("error"); }
+  },[u]);
+  const saveSales=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"sales",val);setSyncState("saved"); }
+    catch(e){ setSyncState("error"); }
+  },[u]);
+  const saveWap=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"wap",val);setSyncState("saved"); }
+    catch(e){ setSyncState("error"); }
+  },[u]);
+
+  const debouncedSaveDrivers=useDebouncedCallback(saveDrivers,1500);
+  const debouncedSaveSales=useDebouncedCallback(saveSales,1500);
+  const debouncedSaveWap=useDebouncedCallback(saveWap,1500);
+
+  const updSale=(did,yr,mo,wk,val)=>{
+    setSales(p=>{
+      const n={...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}};
+      debouncedSaveSales(n);return n;
+    });
+  };
+  const updWap=(did,yr,mo,wk,val)=>{
+    setWap(p=>{
+      const n={...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}};
+      debouncedSaveWap(n);return n;
+    });
+  };
   const saveDrv=d=>{
-    if(d.id)setDrivers(p=>p.map(x=>x.id===d.id?d:x));
-    else{const nid=drivers.length?Math.max(...drivers.map(x=>x.id))+1:1;setDrivers(p=>[...p,{...d,id:nid}]);}
-    setModal(null);
+    const newList=d.id?drivers.map(x=>x.id===d.id?d:x):[...drivers,{...d,id:drivers.length?Math.max(...drivers.map(x=>x.id))+1:1}];
+    setDrivers(newList);debouncedSaveDrivers(newList);setModal(null);
   };
   const delDrv=id=>{
     if(!window.confirm("Delete this driver and all their data?"))return;
-    setDrivers(p=>p.filter(d=>d.id!==id));
-    setSales(p=>{const n={...p};delete n[id];return n;});
-    setWap(p=>{const n={...p};delete n[id];return n;});
+    const newList=drivers.filter(d=>d.id!==id);
+    setDrivers(newList);debouncedSaveDrivers(newList);
+    setSales(p=>{const n={...p};delete n[id];saveSales(n);return n;});
+    setWap(p=>{const n={...p};delete n[id];saveWap(n);return n;});
   };
 
-  // ── Excel Import logic ──
+  // Excel export
+  function doExport(){
+    const wb=XLSX.utils.book_new();
+    const dRows=[["#","NAME","COLOR","TEL","TRACKER","REG NO.","TYPE","W&P AMOUNT"]];
+    drivers.forEach((d,i)=>dRows.push([i+1,d.name,d.color,d.tel,d.tracker,d.reg,d.workAndPay?"WORK & PAY":"REGULAR",d.workAndPay?d.wapAmount:""]));
+    const ws1=XLSX.utils.aoa_to_sheet(dRows);
+    ws1["!cols"]=[{wch:4},{wch:14},{wch:9},{wch:14},{wch:14},{wch:14},{wch:12},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws1,"Drivers");
+    const regD=drivers.filter(d=>!d.workAndPay);
+    const allYears=[...new Set(Object.values(sales).flatMap(y=>Object.keys(y||{})))].sort();
+    const sRows=[["DRIVER","YEAR","MONTH","WEEK 1","WEEK 2","WEEK 3","WEEK 4","WEEK 5","MONTH TOTAL"]];
+    regD.forEach(d=>{allYears.forEach(yr=>{MONTHS.forEach(m=>{const wks=((sales[d.id]||{})[yr]||{})[m]||{};const tot=sumO(wks);if(!tot)return;sRows.push([d.name,yr,m,wks[1]||0,wks[2]||0,wks[3]||0,wks[4]||0,wks[5]||0,tot]);});});});
+    const ws2=XLSX.utils.aoa_to_sheet(sRows);
+    ws2["!cols"]=[{wch:14},{wch:6},{wch:11},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:12}];
+    XLSX.utils.book_append_sheet(wb,ws2,"Sales");
+    const wapD=drivers.filter(d=>d.workAndPay);
+    const wRows=[["DRIVER","YEAR","MONTH","WK1","WK2","WK3","WK4","WK5","MONTH PAID","CUMULATIVE PAID","REMAINING"]];
+    wapD.forEach(d=>{let cum=0;Object.keys(wap[d.id]||{}).sort().forEach(yr=>{MONTHS.forEach(m=>{const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);if(!mp)return;cum+=mp;wRows.push([d.name,yr,m,mw[1]||0,mw[2]||0,mw[3]||0,mw[4]||0,mw[5]||0,mp,cum,d.wapAmount-cum]);});});});
+    const ws3=XLSX.utils.aoa_to_sheet(wRows);
+    XLSX.utils.book_append_sheet(wb,ws3,"Work & Pay");
+    XLSX.writeFile(wb,`Pragya_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  // Excel import
   function handleImport(file){
     const reader=new FileReader();
-    reader.onload=e=>{
+    reader.onload=async e=>{
       try{
         const wb=XLSX.read(e.target.result,{type:"array"});
-        let imported={drivers:null,sales:null,wap:null};
-        let msgs=[];
-
-        // Import Drivers sheet
+        let msgs=[];let newDrvs=null;let newSales=null;let newWap=null;
         if(wb.SheetNames.includes("Drivers")){
           const rows=XLSX.utils.sheet_to_json(wb.Sheets["Drivers"],{header:1}).slice(1);
-          const newDrvs=rows.filter(r=>r[1]).map((r,i)=>({
-            id:i+1,name:String(r[1]||"").toUpperCase(),color:String(r[2]||"BLACK").toUpperCase(),
-            tel:String(r[3]||""),tracker:String(r[4]||""),reg:String(r[5]||""),
-            workAndPay:String(r[6]||"").includes("WORK"),
-            wapAmount:Number(r[7])||0
-          }));
-          if(newDrvs.length){imported.drivers=newDrvs;msgs.push(`✓ ${newDrvs.length} drivers`);}
+          newDrvs=rows.filter(r=>r[1]).map((r,i)=>({id:i+1,name:String(r[1]||"").toUpperCase(),color:String(r[2]||"BLACK").toUpperCase(),tel:String(r[3]||""),tracker:String(r[4]||""),reg:String(r[5]||""),workAndPay:String(r[6]||"").includes("WORK"),wapAmount:Number(r[7])||0}));
+          if(newDrvs.length)msgs.push(`${newDrvs.length} drivers`);
         }
-
-        // Import Sales sheet
         if(wb.SheetNames.includes("Sales")){
           const rows=XLSX.utils.sheet_to_json(wb.Sheets["Sales"],{header:1}).slice(1);
-          const newSales={};
-          const drvList=imported.drivers||drivers;
-          rows.forEach(r=>{
-            if(!r[0]||!r[1]||!r[2])return;
-            const dName=String(r[0]).toUpperCase().trim();
-            const yr=String(r[1]).trim();
-            const mo=String(r[2]).trim();
-            if(!MONTHS.includes(mo))return;
-            const drv=drvList.find(d=>d.name===dName);
-            if(!drv)return;
-            const did=drv.id;
-            if(!newSales[did])newSales[did]={};
-            if(!newSales[did][yr])newSales[did][yr]={};
-            newSales[did][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};
-          });
-          if(Object.keys(newSales).length){imported.sales=newSales;msgs.push(`✓ Sales data`);}
+          const dList=newDrvs||drivers;newSales={};
+          rows.forEach(r=>{if(!r[0]||!r[1]||!r[2])return;const dName=String(r[0]).toUpperCase().trim();const yr=String(r[1]).trim();const mo=String(r[2]).trim();if(!MONTHS.includes(mo))return;const drv=dList.find(d=>d.name===dName);if(!drv)return;if(!newSales[drv.id])newSales[drv.id]={};if(!newSales[drv.id][yr])newSales[drv.id][yr]={};newSales[drv.id][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};});
+          if(Object.keys(newSales).length)msgs.push("sales data");
         }
-
-        // Import Work & Pay sheet
         if(wb.SheetNames.includes("Work & Pay")){
           const rows=XLSX.utils.sheet_to_json(wb.Sheets["Work & Pay"],{header:1}).slice(1);
-          const newWap={};
-          const drvList=imported.drivers||drivers;
-          rows.forEach(r=>{
-            if(!r[0]||!r[1]||!r[2])return;
-            const dName=String(r[0]).toUpperCase().trim();
-            const yr=String(r[1]).trim();
-            const mo=String(r[2]).trim();
-            if(!MONTHS.includes(mo))return;
-            const drv=drvList.find(d=>d.name===dName&&d.workAndPay);
-            if(!drv)return;
-            const did=drv.id;
-            if(!newWap[did])newWap[did]={};
-            if(!newWap[did][yr])newWap[did][yr]={};
-            newWap[did][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};
-          });
-          if(Object.keys(newWap).length){imported.wap=newWap;msgs.push(`✓ W&P payments`);}
+          const dList=newDrvs||drivers;newWap={};
+          rows.forEach(r=>{if(!r[0]||!r[1]||!r[2])return;const dName=String(r[0]).toUpperCase().trim();const yr=String(r[1]).trim();const mo=String(r[2]).trim();if(!MONTHS.includes(mo))return;const drv=dList.find(d=>d.name===dName&&d.workAndPay);if(!drv)return;if(!newWap[drv.id])newWap[drv.id]={};if(!newWap[drv.id][yr])newWap[drv.id][yr]={};newWap[drv.id][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};});
+          if(Object.keys(newWap).length)msgs.push("W&P payments");
         }
-
-        if(msgs.length===0){setImportMsg({type:"err",text:"No recognized data found. Make sure you're importing a file exported from Pragya Manager."});return;}
-        if(imported.drivers)setDrivers(imported.drivers);
-        if(imported.sales)  setSales(imported.sales);
-        if(imported.wap)    setWap(imported.wap);
-        setImportMsg({type:"ok",text:`Import successful: ${msgs.join(", ")}.`});
-        setTimeout(()=>{setImportModal(false);setImportMsg(null);},2200);
-      }catch(err){
-        setImportMsg({type:"err",text:"Failed to read file. Make sure it's a valid .xlsx file."});
-      }
+        if(!msgs.length){setImportMsg({type:"err",text:"No valid data found in file."});return;}
+        if(newDrvs){setDrivers(newDrvs);await dbSet(u,"drivers",newDrvs);}
+        if(newSales){setSales(newSales);await dbSet(u,"sales",newSales);}
+        if(newWap){setWap(newWap);await dbSet(u,"wap",newWap);}
+        setImportMsg({type:"ok",text:`Imported: ${msgs.join(", ")}`});
+        setTimeout(()=>{setImportModal(false);setImportMsg(null);},2000);
+      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a Pragya Manager export file."});}
     };
     reader.readAsArrayBuffer(file);
   }
@@ -572,8 +693,15 @@ function Dashboard({session,onLogout}){
   ];
   const period={selYear,selMonth,setSelYear,setSelMonth};
 
+  const syncLabel={saving:"Saving…",saved:"Saved",error:"Sync error"}[syncState];
+
+  if(!loaded)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING DATA…</div></div>;
+
   return(
     <div className="app">
+      {/* Sync bar at very top */}
+      <div className={`sync-bar ${syncState}`}/>
+
       <aside className="sidebar">
         <div className="sb-logo">
           <div className="sb-logo-main">🛺 Pragya</div>
@@ -588,6 +716,10 @@ function Dashboard({session,onLogout}){
           ))}
         </nav>
         <div className="sb-footer">
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+            <div className={`sync-dot ${syncState}`}/>
+            <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
+          </div>
           <div className="sb-user">@<span>{u}</span></div>
           <button className="logout-btn" onClick={onLogout}><Ic name="logout" size={10}/> Sign Out</button>
         </div>
@@ -597,9 +729,13 @@ function Dashboard({session,onLogout}){
         <div className="topbar">
           <div className="topbar-title">{NAV.find(n=>n.id===view)?.label}</div>
           <div className="topbar-actions">
-            {view==="drivers"&&<button className="btn" onClick={()=>setModal({type:"add"})}><Ic name="plus" size={12} color="#0a0a0f"/>Add Driver</button>}
-            {view==="reports"&&<button className="btn" onClick={()=>exportToExcel(drivers,sales,wap,session.business)}><Ic name="download" size={12} color="#0a0a0f"/>Export Excel</button>}
-            {view==="transfer"&&<button className="btn btn-blue" onClick={()=>setImportModal(true)}><Ic name="upload" size={12}/>Import Excel</button>}
+            {/* Sync status on mobile */}
+            <div style={{display:"flex",alignItems:"center",gap:5}} className="hide-mob">
+              <div className={`sync-dot ${syncState}`}/>
+              <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
+            </div>
+            {view==="drivers"&&<button className="btn" onClick={()=>setModal({type:"add"})}><Ic name="plus" size={12} color="#0a0a0f"/>Add</button>}
+            {view==="reports"&&<button className="btn" onClick={doExport}><Ic name="download" size={12} color="#0a0a0f"/>Export</button>}
             <button className="btn-outline hide-mob" onClick={onLogout} style={{padding:"6px 10px"}}><Ic name="logout" size={13}/></button>
           </div>
         </div>
@@ -609,12 +745,11 @@ function Dashboard({session,onLogout}){
           {view==="drivers"  &&<VDrivers drivers={drivers} setModal={setModal} delDrv={delDrv}/>}
           {view==="sales"    &&<VSales regD={regD} sales={sales} updSale={updSale} {...period}/>}
           {view==="workpay"  &&<VWap wapD={wapD} wap={wap} updWap={updWap} {...period}/>}
-          {view==="reports"  &&<VReports regD={regD} wapD={wapD} drivers={drivers} sales={sales} wap={wap} {...period} onExport={()=>exportToExcel(drivers,sales,wap,session.business)}/>}
-          {view==="transfer" &&<VTransfer drivers={drivers} sales={sales} wap={wap} session={session} onExport={()=>exportToExcel(drivers,sales,wap,session.business)} onImport={()=>setImportModal(true)}/>}
+          {view==="reports"  &&<VReports regD={regD} wapD={wapD} drivers={drivers} sales={sales} wap={wap} {...period} onExport={doExport}/>}
+          {view==="transfer" &&<VTransfer drivers={drivers} sales={sales} wap={wap} session={session} onExport={doExport} onImport={()=>setImportModal(true)}/>}
         </div>
       </div>
 
-      {/* Mobile Bottom Nav — 5 items, show first 5 */}
       <nav className="bottom-nav">
         <div className="bn-inner">
           {NAV.slice(0,5).map(n=>(
@@ -633,16 +768,17 @@ function Dashboard({session,onLogout}){
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: DASHBOARD
-// ══════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+// VIEWS (Dashboard, Drivers, Sales, W&P, Reports, Transfer)
+// ══════════════════════════════════════════════════════
+
 function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,selMonth,setSelYear,setSelMonth}){
   const maxP=regD.reduce((mx,d)=>Math.max(mx,sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})),1);
   return(
     <div>
       <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="VIEWING"/>
       <div className="stats-grid">
-        <div className="stat-card"><div className="stat-label">Drivers</div><div className="stat-val">{regD.length+wapD.length}</div><div className="stat-sub">{regD.length} regular · {wapD.length} W&P</div></div>
+        <div className="stat-card"><div className="stat-label">Drivers</div><div className="stat-val">{regD.length+wapD.length}</div><div className="stat-sub">{regD.length} reg · {wapD.length} W&P</div></div>
         <div className="stat-card"><div className="stat-label">{selMonth.slice(0,3)} {selYear}</div><div className="stat-val">{fmt(periodSales)}</div><div className="stat-sub">period sales</div></div>
         <div className="stat-card"><div className="stat-label">{selYear} Total</div><div className="stat-val">{fmt(yearSales)}</div><div className="stat-sub">full year</div></div>
         <div className="stat-card"><div className="stat-label">W&P Balance</div><div className="stat-val" style={{color:wapBal<=0?"var(--green)":"var(--gold)"}}>{fmt(wapBal)}</div><div className="stat-sub">of {fmt(totOwed)}</div></div>
@@ -664,11 +800,10 @@ function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,sel
         </div>
       </div>
       {regD.length===0
-        ?<div className="card empty-state"><div className="empty-ico">🛺</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div><div style={{fontSize:11,marginTop:8}}>Go to Drivers tab to add your first driver</div></div>
+        ?<div className="card empty-state"><div className="empty-ico">🛺</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div></div>
         :<div className="card">
           <div className="sec-title">Leaderboard — {selMonth} {selYear}</div>
-          {[...regD].map(d=>({...d,total:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})}))
-            .sort((a,b)=>b.total-a.total).map((d,i)=>(
+          {[...regD].map(d=>({...d,total:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})})).sort((a,b)=>b.total-a.total).map((d,i)=>(
             <div key={d.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:"1px solid var(--border)"}}>
               <div style={{fontSize:11,color:"var(--text3)",width:16,textAlign:"center",fontWeight:700}}>{i+1}</div>
               <CDot color={d.color}/>
@@ -685,14 +820,11 @@ function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,sel
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: DRIVERS
-// ══════════════════════════════════════════════════════════════
 function VDrivers({drivers,setModal,delDrv}){
   if(!drivers.length)return(
     <div className="card empty-state">
       <div className="empty-ico">👤</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div>
-      <div style={{fontSize:11,marginTop:8,marginBottom:18}}>Add your first Pragya driver to get started</div>
+      <div style={{fontSize:11,marginTop:8,marginBottom:18}}>Add your first Pragya driver</div>
       <button className="btn" onClick={()=>setModal({type:"add"})}>+ Add First Driver</button>
     </div>
   );
@@ -726,11 +858,7 @@ function VDrivers({drivers,setModal,delDrv}){
           <div key={d.id} className="drv-card">
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
               <div>
-                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}>
-                  <CDot color={d.color}/>
-                  <span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span>
-                  {d.workAndPay&&<span style={{fontSize:8,color:"var(--gold)",background:"#f5a62322",padding:"2px 6px",borderRadius:3}}>W&P</span>}
-                </div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span>{d.workAndPay&&<span style={{fontSize:8,color:"var(--gold)",background:"#f5a62322",padding:"2px 6px",borderRadius:3}}>W&P</span>}</div>
                 <div className="info-row"><span>📱 {d.tel}</span><span>🏷️ {d.reg}</span></div>
                 {d.workAndPay&&<div style={{fontSize:11,color:"var(--gold)",marginTop:3}}>Owed: {fmt(d.wapAmount)}</div>}
               </div>
@@ -747,12 +875,9 @@ function VDrivers({drivers,setModal,delDrv}){
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: SALES
-// ══════════════════════════════════════════════════════════════
 function VSales({regD,sales,updSale,selYear,selMonth,setSelYear,setSelMonth}){
   const total=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),0);
-  if(!regD.length)return<div className="card empty-state"><div className="empty-ico">📊</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS</div><div style={{fontSize:11,marginTop:8}}>Add drivers first</div></div>;
+  if(!regD.length)return<div className="card empty-state"><div className="empty-ico">📊</div><div style={{fontSize:12,letterSpacing:2}}>ADD DRIVERS FIRST</div></div>;
   return(
     <div>
       <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="ENTERING SALES FOR"/>
@@ -797,7 +922,7 @@ function VSales({regD,sales,updSale,selYear,selMonth,setSelYear,setSelMonth}){
                 );
               })}
               <tr>
-                <td style={{fontWeight:700,fontSize:11,letterSpacing:1,color:"var(--text)"}}>TOTAL</td>
+                <td style={{fontWeight:700,fontSize:11,color:"var(--text)"}}>TOTAL</td>
                 {MONTHS.map(m=>{const mt=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);return<td key={m} style={{textAlign:"center",fontSize:11,fontWeight:600,color:m===selMonth?"var(--gold)":mt>0?"var(--text)":"var(--text3)"}}>{mt>0?fmt(mt):"—"}</td>;})}
                 <td style={{textAlign:"right",fontWeight:700,color:"var(--gold)"}}>{fmt(regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),0))}</td>
               </tr>
@@ -809,11 +934,8 @@ function VSales({regD,sales,updSale,selYear,selMonth,setSelYear,setSelMonth}){
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: WORK & PAY
-// ══════════════════════════════════════════════════════════════
 function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
-  if(!wapD.length)return<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO WORK & PAY DRIVERS</div><div style={{fontSize:11,marginTop:8}}>Add a driver and tick "Work & Pay" in Drivers tab</div></div>;
+  if(!wapD.length)return<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO W&P DRIVERS</div><div style={{fontSize:11,marginTop:8}}>Add a driver and tick Work & Pay</div></div>;
   return(
     <div>
       <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="PAYMENT PERIOD"/>
@@ -835,8 +957,8 @@ function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
                 <div style={{fontSize:10,color:"var(--text3)"}}>{fmt(totPaid)} paid of {fmt(d.wapAmount)}</div>
               </div>
             </div>
-            <div className="prog-track" style={{marginBottom:16}}><div className="prog-fill" style={{width:`${p}%`}}/></div>
-            <div className="sec-title">{selMonth} {selYear} — Payments</div>
+            <div className="prog-track" style={{marginBottom:14}}><div className="prog-fill" style={{width:`${p}%`}}/></div>
+            <div className="sec-title">{selMonth} {selYear}</div>
             <div className="wks-grid" style={{marginBottom:10}}>
               {[1,2,3,4,5].map(w=>(
                 <div key={w} className="wk-box">
@@ -845,7 +967,7 @@ function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
                 </div>
               ))}
             </div>
-            <div style={{textAlign:"right",fontSize:12,color:"var(--gold)",fontWeight:700,marginBottom:16}}>{selMonth} {selYear}: {fmt(sumO(mWks))}</div>
+            <div style={{textAlign:"right",fontSize:12,color:"var(--gold)",fontWeight:700,marginBottom:14}}>{selMonth} {selYear}: {fmt(sumO(mWks))}</div>
             <div className="sec-title">Payment History</div>
             <div className="tbl-wrap">
               <table>
@@ -854,15 +976,14 @@ function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
                   {(()=>{let cum=0;const rows=[];
                     Object.keys(wap[d.id]||{}).sort().forEach(yr=>{
                       MONTHS.forEach(m=>{
-                        const mw=((wap[d.id]||{})[yr]||{})[m]||{};
-                        const mp=sumO(mw);
+                        const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);
                         if(!mp&&!(yr===selYear&&m===selMonth))return;
                         cum+=mp;const cb=d.wapAmount-cum;const isSel=yr===selYear&&m===selMonth;
                         rows.push(<tr key={yr+m} style={{background:isSel?"#f5a62308":""}}>
                           <td style={{fontSize:11,color:isSel?"var(--gold)":"var(--text3)"}}>{yr}</td>
                           <td style={{color:isSel?"var(--gold)":"var(--text2)",fontWeight:isSel?600:400,whiteSpace:"nowrap"}}>{m}</td>
                           {[1,2,3,4,5].map(w=><td key={w} style={{textAlign:"center",fontSize:11,color:"var(--text3)"}}>{mw[w]||"—"}</td>)}
-                          <td style={{textAlign:"right",color:"var(--text2)",whiteSpace:"nowrap"}}>{mp>0?fmt(mp):"—"}</td>
+                          <td style={{textAlign:"right",whiteSpace:"nowrap"}}>{mp>0?fmt(mp):"—"}</td>
                           <td style={{textAlign:"right",fontWeight:600,color:cb<=0?"var(--green)":"var(--text2)",whiteSpace:"nowrap"}}>{fmt(cb)}</td>
                         </tr>);
                       });
@@ -879,180 +1000,99 @@ function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: REPORTS  ← NEW
-// ══════════════════════════════════════════════════════════════
 function VReports({regD,wapD,drivers,sales,wap,selYear,selMonth,setSelYear,setSelMonth,onExport}){
   const [rTab,setRTab]=useState("monthly");
-
-  // All years that have data
   const allYears=[...new Set(Object.values(sales).flatMap(y=>Object.keys(y||{})))].sort().reverse();
-  const displayYears=allYears.length?allYears:[selYear];
-
-  // Monthly totals for selected year
-  const monthlyTotals=MONTHS.map(m=>({
-    month:m,
-    total:regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),
-  }));
-  const maxMthTotal=Math.max(...monthlyTotals.map(x=>x.total),1);
-
-  // Driver totals for selected year
-  const driverYearTotals=regD.map(d=>({
-    ...d,
-    total:MONTHS.reduce((t,m)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),
-    monthTotal:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),
-  })).sort((a,b)=>b.total-a.total);
-  const maxDrvTotal=Math.max(...driverYearTotals.map(x=>x.total),1);
-
-  // KPIs
+  const monthlyTotals=MONTHS.map(m=>({month:m,total:regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0)}));
+  const maxMth=Math.max(...monthlyTotals.map(x=>x.total),1);
+  const driverTotals=regD.map(d=>({...d,total:MONTHS.reduce((t,m)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),monthTotal:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})})).sort((a,b)=>b.total-a.total);
+  const maxDrv=Math.max(...driverTotals.map(x=>x.total),1);
   const yearTotal=monthlyTotals.reduce((t,x)=>t+x.total,0);
   const activeMths=monthlyTotals.filter(x=>x.total>0).length;
   const avgMth=activeMths?Math.round(yearTotal/activeMths):0;
   const bestMth=monthlyTotals.reduce((b,x)=>x.total>b.total?x:b,{month:"—",total:0});
-  const bestDrv=driverYearTotals[0]||{name:"—",total:0};
+  const bestDrv=driverTotals[0]||{name:"—",total:0};
   const periodSales=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),0);
-
-  // Prev month comparison
   const mIdx=MONTHS.indexOf(selMonth);
   const prevMth=mIdx>0?MONTHS[mIdx-1]:null;
   const prevMthTotal=prevMth?regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[prevMth]||{}),0):0;
   const mthChange=prevMthTotal>0?((periodSales-prevMthTotal)/prevMthTotal*100).toFixed(1):null;
-
-  // W&P summary
-  const wapSummary=wapD.map(d=>{
-    const totPaid=Object.values(wap[d.id]||{}).reduce((t,yrs)=>t+Object.values(yrs||{}).reduce((yt,wks)=>yt+sumO(wks),0),0);
-    return{...d,totPaid,bal:d.wapAmount-totPaid,pct:d.wapAmount>0?Math.min(100,(totPaid/d.wapAmount)*100):0};
-  });
-
-  // Year-over-year
-  const yoyRows=displayYears.slice(0,4).map(yr=>({
-    yr,total:regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[yr]||{})[m]||{}),0),0),
-  }));
+  const wapSummary=wapD.map(d=>{const tp=Object.values(wap[d.id]||{}).reduce((t,y)=>t+Object.values(y||{}).reduce((yt,wks)=>yt+sumO(wks),0),0);return{...d,totPaid:tp,bal:d.wapAmount-tp,pct:d.wapAmount>0?Math.min(100,(tp/d.wapAmount)*100):0};});
+  const yoyRows=(allYears.length?allYears:[selYear]).slice(0,4).map(yr=>({yr,total:regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[yr]||{})[m]||{}),0),0)}));
   const maxYoy=Math.max(...yoyRows.map(x=>x.total),1);
-
-  const RANK_CLS=["rank-1","rank-2","rank-3","rank-n","rank-n","rank-n"];
+  const RCLS=["rank-1","rank-2","rank-3","rank-n","rank-n","rank-n"];
 
   return(
     <div>
       <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="REPORT PERIOD"/>
-
-      {/* Report tabs */}
       <div className="report-tabs">
-        {[["monthly","📅 Monthly"],["drivers","👤 Drivers"],["yoy","📈 Year vs Year"],["wap","💳 Work & Pay"]].map(([id,lbl])=>(
+        {[["monthly","Monthly"],["drivers","Drivers"],["yoy","Year vs Year"],["wap","Work & Pay"]].map(([id,lbl])=>(
           <button key={id} className={`report-tab${rTab===id?" active":""}`} onClick={()=>setRTab(id)}>{lbl}</button>
         ))}
       </div>
 
-      {/* ── MONTHLY REPORT ── */}
       {rTab==="monthly"&&(
         <div>
-          {/* KPIs */}
           <div className="kpi-grid">
-            <div className="kpi-card">
-              <div className="kpi-label">{selYear} Total Sales</div>
-              <div className="kpi-val">{fmt(yearTotal)}</div>
-              <div className="kpi-sub">{activeMths} active months</div>
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-label">{selMonth} Sales</div>
-              <div className="kpi-val">{fmt(periodSales)}</div>
-              {mthChange!==null&&<div className={`kpi-sub ${Number(mthChange)>=0?"trend-up":"trend-dn"}`}>{Number(mthChange)>=0?"▲":"▼"} {Math.abs(mthChange)}% vs {prevMth}</div>}
-            </div>
-            <div className="kpi-card">
-              <div className="kpi-label">Avg per Month</div>
-              <div className="kpi-val">{fmt(avgMth)}</div>
-              <div className="kpi-sub">best: {bestMth.month}</div>
-            </div>
+            <div className="kpi-card"><div className="kpi-label">{selYear} Total</div><div className="kpi-val">{fmt(yearTotal)}</div><div className="kpi-sub">{activeMths} active months</div></div>
+            <div className="kpi-card"><div className="kpi-label">{selMonth} Sales</div><div className="kpi-val">{fmt(periodSales)}</div>{mthChange!==null&&<div className={`kpi-sub ${Number(mthChange)>=0?"trend-up":"trend-dn"}`}>{Number(mthChange)>=0?"▲":"▼"} {Math.abs(mthChange)}% vs {prevMth}</div>}</div>
+            <div className="kpi-card"><div className="kpi-label">Avg/Month</div><div className="kpi-val">{fmt(avgMth)}</div><div className="kpi-sub">best: {bestMth.month}</div></div>
           </div>
-
-          {/* Bar chart — monthly */}
           <div className="card" style={{marginBottom:14}}>
-            <div className="sec-title">{selYear} — Monthly Sales Chart</div>
-            {monthlyTotals.filter(x=>x.total>0).length===0
-              ?<div style={{fontSize:11,color:"var(--text3)",padding:"8px 0"}}>No sales data for {selYear}.</div>
-              :monthlyTotals.map((x,i)=>{
-                if(!x.total)return null;
-                const isSel=x.month===selMonth;
-                return(
-                  <div key={x.month} className="bar-row">
-                    <div className="bar-label" style={{color:isSel?"var(--gold)":"var(--text2)",fontWeight:isSel?700:400}}>{x.month.slice(0,3)}</div>
-                    <div className="bar-track">
-                      <div className={`bar-fill ${isSel?"rank-1":"rank-n"}`} style={{width:`${pct(x.total,maxMthTotal)}%`}}>
-                        <span style={{color:isSel?"#0a0a0f":"#aaa"}}>{fmt(x.total)}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            }
+            <div className="sec-title">{selYear} — Monthly Sales</div>
+            {monthlyTotals.filter(x=>x.total>0).length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No data for {selYear}.</div>
+              :monthlyTotals.map(x=>{if(!x.total)return null;const isSel=x.month===selMonth;return(
+                <div key={x.month} className="bar-row">
+                  <div className="bar-label" style={{color:isSel?"var(--gold)":"var(--text2)",fontWeight:isSel?700:400}}>{x.month.slice(0,3)}</div>
+                  <div className="bar-track"><div className={`bar-fill ${isSel?"rank-1":"rank-n"}`} style={{width:`${pct(x.total,maxMth)}%`}}><span style={{color:isSel?"#0a0a0f":"#aaa"}}>{fmt(x.total)}</span></div></div>
+                </div>
+              );})}
           </div>
-
-          {/* Per-driver breakdown for selected month */}
           <div className="card">
             <div className="sec-title">{selMonth} {selYear} — Driver Breakdown</div>
-            {regD.length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No drivers added yet.</div>
-              :<div className="tbl-wrap">
-                <table>
-                  <thead><tr><th>Driver</th><th>Color</th>{[1,2,3,4,5].map(w=><th key={w} style={{textAlign:"center"}}>Wk{w}</th>)}<th style={{textAlign:"right"}}>Total</th><th style={{textAlign:"right"}}>Share</th></tr></thead>
-                  <tbody>
-                    {regD.map(d=>{
-                      const wks=((sales[d.id]||{})[selYear]||{})[selMonth]||{};
-                      const t=sumO(wks);
-                      return(
-                        <tr key={d.id}>
-                          <td style={{fontWeight:600,color:"var(--text)"}}>{d.name}</td>
-                          <td><CBadge color={d.color}/></td>
-                          {[1,2,3,4,5].map(w=><td key={w} style={{textAlign:"center",fontSize:11,color:wks[w]>0?"var(--text2)":"var(--text3)"}}>{wks[w]||"—"}</td>)}
-                          <td style={{textAlign:"right",fontWeight:700,color:t>0?"var(--gold)":"var(--text3)"}}>{t>0?fmt(t):"—"}</td>
-                          <td style={{textAlign:"right",fontSize:11,color:"var(--text3)"}}>{periodSales>0?`${((t/periodSales)*100).toFixed(0)}%`:"—"}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot><tr>
-                    <td colSpan="2">TOTAL</td>
-                    {[1,2,3,4,5].map(w=>{const wt=regD.reduce((t,d)=>t+(Number(((sales[d.id]||{})[selYear]||{})[selMonth]||{})[w])||0,0);return<td key={w} style={{textAlign:"center",fontWeight:600}}>{wt||"—"}</td>;})}
-                    <td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(periodSales)}</td>
-                    <td style={{textAlign:"right"}}>100%</td>
-                  </tr></tfoot>
-                </table>
-              </div>
-            }
+            <div className="tbl-wrap">
+              <table>
+                <thead><tr><th>Driver</th>{[1,2,3,4,5].map(w=><th key={w} style={{textAlign:"center"}}>Wk{w}</th>)}<th style={{textAlign:"right"}}>Total</th><th style={{textAlign:"right"}}>Share</th></tr></thead>
+                <tbody>
+                  {regD.map(d=>{const wks=((sales[d.id]||{})[selYear]||{})[selMonth]||{};const t=sumO(wks);return(
+                    <tr key={d.id}><td style={{fontWeight:600}}><div style={{display:"flex",alignItems:"center",gap:6}}><CDot color={d.color}/>{d.name}</div></td>
+                    {[1,2,3,4,5].map(w=><td key={w} style={{textAlign:"center",fontSize:11,color:wks[w]>0?"var(--text2)":"var(--text3)"}}>{wks[w]||"—"}</td>)}
+                    <td style={{textAlign:"right",fontWeight:700,color:t>0?"var(--gold)":"var(--text3)"}}>{t>0?fmt(t):"—"}</td>
+                    <td style={{textAlign:"right",fontSize:11,color:"var(--text3)"}}>{periodSales>0?`${((t/periodSales)*100).toFixed(0)}%`:"—"}</td></tr>
+                  );})}
+                </tbody>
+                <tfoot><tr><td>TOTAL</td>{[1,2,3,4,5].map(w=>{const wt=regD.reduce((t,d)=>t+(Number(((sales[d.id]||{})[selYear]||{})[selMonth]||{})[w])||0,0);return<td key={w} style={{textAlign:"center"}}>{wt||"—"}</td>;})}<td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(periodSales)}</td><td style={{textAlign:"right"}}>100%</td></tr></tfoot>
+              </table>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── DRIVERS REPORT ── */}
       {rTab==="drivers"&&(
         <div>
           <div className="kpi-grid">
             <div className="kpi-card"><div className="kpi-label">Top Driver ({selYear})</div><div className="kpi-val" style={{fontSize:16}}>{bestDrv.name}</div><div className="kpi-sub">{fmt(bestDrv.total)}</div></div>
             <div className="kpi-card"><div className="kpi-label">Total Drivers</div><div className="kpi-val">{regD.length}</div><div className="kpi-sub">{wapD.length} on W&P</div></div>
-            <div className="kpi-card"><div className="kpi-label">Avg per Driver ({selYear})</div><div className="kpi-val">{fmt(regD.length?Math.round(yearTotal/regD.length):0)}</div><div className="kpi-sub">this year</div></div>
+            <div className="kpi-card"><div className="kpi-label">Avg/Driver ({selYear})</div><div className="kpi-val">{fmt(regD.length?Math.round(yearTotal/regD.length):0)}</div></div>
           </div>
           <div className="card" style={{marginBottom:14}}>
             <div className="sec-title">Driver Performance — {selYear}</div>
-            {driverYearTotals.length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No drivers yet.</div>
-              :driverYearTotals.map((d,i)=>(
+            {driverTotals.length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No drivers.</div>
+              :driverTotals.map((d,i)=>(
               <div key={d.id} className="bar-row">
                 <div className="bar-label" style={{display:"flex",alignItems:"center",gap:5}}><CDot color={d.color}/><span style={{fontSize:11}}>{d.name}</span></div>
-                <div className="bar-track">
-                  <div className={`bar-fill ${RANK_CLS[i]||"rank-n"}`} style={{width:`${pct(d.total,maxDrvTotal)}%`}}>
-                    {d.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(d.total)}</span>}
-                  </div>
-                </div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]||"rank-n"}`} style={{width:`${pct(d.total,maxDrv)}%`}}>{d.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(d.total)}</span>}</div></div>
                 <div className="bar-val">{d.total>0?fmt(d.total):"—"}</div>
               </div>
             ))}
           </div>
-          {/* Per driver all-year table */}
           <div className="card">
-            <div className="sec-title">Driver × Month Table — {selYear}</div>
+            <div className="sec-title">Driver x Month — {selYear}</div>
             <div className="tbl-wrap">
               <table>
                 <thead><tr><th>Driver</th>{MONTHS.map(m=><th key={m} style={{textAlign:"center",fontSize:8}}>{m.slice(0,3)}</th>)}<th style={{textAlign:"right"}}>Total</th></tr></thead>
                 <tbody>
-                  {driverYearTotals.map(d=>(
+                  {driverTotals.map(d=>(
                     <tr key={d.id}>
                       <td style={{fontWeight:600,whiteSpace:"nowrap"}}><div style={{display:"flex",alignItems:"center",gap:6}}><CDot color={d.color}/>{d.name}</div></td>
                       {MONTHS.map(m=>{const mt=sumO(((sales[d.id]||{})[selYear]||{})[m]||{});return<td key={m} style={{textAlign:"center",fontSize:11,color:m===selMonth?"var(--gold)":mt>0?"var(--text2)":"var(--text3)",background:m===selMonth?"#f5a62308":""}}>{mt>0?mt.toLocaleString():"—"}</td>;})}
@@ -1060,159 +1100,107 @@ function VReports({regD,wapD,drivers,sales,wap,selYear,selMonth,setSelYear,setSe
                     </tr>
                   ))}
                 </tbody>
-                <tfoot><tr>
-                  <td>TOTAL</td>
-                  {MONTHS.map(m=>{const mt=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);return<td key={m} style={{textAlign:"center",color:m===selMonth?"var(--gold)":mt>0?"var(--text)":"var(--text3)"}}>{mt>0?fmt(mt):"—"}</td>;})}
-                  <td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(yearTotal)}</td>
-                </tr></tfoot>
+                <tfoot><tr><td>TOTAL</td>{MONTHS.map(m=>{const mt=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);return<td key={m} style={{textAlign:"center",color:m===selMonth?"var(--gold)":mt>0?"var(--text)":"var(--text3)"}}>{mt>0?fmt(mt):"—"}</td>;})}<td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(yearTotal)}</td></tr></tfoot>
               </table>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── YEAR OVER YEAR ── */}
       {rTab==="yoy"&&(
         <div>
           <div className="card" style={{marginBottom:14}}>
             <div className="sec-title">Year-over-Year Total Sales</div>
-            {yoyRows.length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No data yet across years.</div>
-              :yoyRows.map((x,i)=>(
+            {yoyRows.map((x,i)=>(
               <div key={x.yr} className="bar-row">
                 <div className="bar-label" style={{fontWeight:x.yr===selYear?700:400,color:x.yr===selYear?"var(--gold)":"var(--text2)"}}>{x.yr}</div>
-                <div className="bar-track">
-                  <div className={`bar-fill ${RANK_CLS[i]}`} style={{width:`${pct(x.total,maxYoy)}%`}}>
-                    {x.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(x.total)}</span>}
-                  </div>
-                </div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]}`} style={{width:`${pct(x.total,maxYoy)}%`}}>{x.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(x.total)}</span>}</div></div>
                 <div className="bar-val">{x.total>0?fmt(x.total):"—"}</div>
               </div>
             ))}
           </div>
-          {/* Monthly comparison across years */}
           <div className="card">
-            <div className="sec-title">{selMonth} — Comparison Across Years</div>
-            {displayYears.map((yr,i)=>{
+            <div className="sec-title">{selMonth} — Across Years</div>
+            {(allYears.length?allYears:[selYear]).map((yr,i)=>{
               const t=regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[yr]||{})[selMonth]||{}),0);
               if(!t)return null;
-              const max2=Math.max(...displayYears.map(y=>regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[y]||{})[selMonth]||{}),0)),1);
-              return(
-                <div key={yr} className="bar-row">
-                  <div className="bar-label" style={{fontWeight:yr===selYear?700:400,color:yr===selYear?"var(--gold)":"var(--text2)"}}>{yr}</div>
-                  <div className="bar-track"><div className={`bar-fill ${RANK_CLS[i]}`} style={{width:`${pct(t,max2)}%`}}><span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(t)}</span></div></div>
-                  <div className="bar-val">{fmt(t)}</div>
-                </div>
-              );
+              const mx=Math.max(...(allYears.length?allYears:[selYear]).map(y=>regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[y]||{})[selMonth]||{}),0)),1);
+              return(<div key={yr} className="bar-row">
+                <div className="bar-label" style={{fontWeight:yr===selYear?700:400,color:yr===selYear?"var(--gold)":"var(--text2)"}}>{yr}</div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]}`} style={{width:`${pct(t,mx)}%`}}><span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(t)}</span></div></div>
+                <div className="bar-val">{fmt(t)}</div>
+              </div>);
             })}
-            {displayYears.every(yr=>!regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[yr]||{})[selMonth]||{}),0))&&<div style={{fontSize:11,color:"var(--text3)"}}>No data for {selMonth} across recorded years.</div>}
           </div>
         </div>
       )}
 
-      {/* ── WORK & PAY REPORT ── */}
       {rTab==="wap"&&(
-        <div>
-          {wapSummary.length===0?<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO W&P DRIVERS</div></div>
-          :(
-            <>
-              <div className="kpi-grid">
-                <div className="kpi-card"><div className="kpi-label">Total Owed</div><div className="kpi-val">{fmt(wapSummary.reduce((t,d)=>t+d.wapAmount,0))}</div></div>
-                <div className="kpi-card"><div className="kpi-label">Total Paid</div><div className="kpi-val" style={{color:"var(--green)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.totPaid,0))}</div></div>
-                <div className="kpi-card"><div className="kpi-label">Remaining</div><div className="kpi-val" style={{color:"var(--red)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.bal,0))}</div></div>
-              </div>
-              {wapSummary.map(d=>(
-                <div key={d.id} className="card" style={{marginBottom:12}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10,flexWrap:"wrap",gap:8}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span></div>
-                    <div style={{textAlign:"right"}}>
-                      <div style={{fontSize:18,fontWeight:800,color:d.bal<=0?"var(--green)":"var(--gold)",fontFamily:"var(--fd)"}}>{fmt(d.bal)} left</div>
-                      <div style={{fontSize:10,color:"var(--text3)"}}>{fmt(d.totPaid)} / {fmt(d.wapAmount)} · {d.pct.toFixed(0)}% complete</div>
-                    </div>
-                  </div>
-                  <div className="prog-track" style={{marginBottom:12}}><div className="prog-fill" style={{width:`${d.pct}%`}}/></div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-                    {Object.keys(wap[d.id]||{}).sort().map(yr=>{
-                      const yrPaid=Object.values((wap[d.id]||{})[yr]||{}).reduce((t,wks)=>t+sumO(wks),0);
-                      return<div key={yr} style={{background:"var(--bg)",borderRadius:6,padding:"10px 12px",border:"1px solid var(--border)"}}>
-                        <div style={{fontSize:9,color:"var(--text3)",letterSpacing:2,marginBottom:3}}>{yr}</div>
-                        <div style={{fontSize:13,fontWeight:700,color:"var(--gold)"}}>{fmt(yrPaid)}</div>
-                      </div>;
-                    })}
-                  </div>
+        wapSummary.length===0?<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO W&P DRIVERS</div></div>
+        :<div>
+          <div className="kpi-grid">
+            <div className="kpi-card"><div className="kpi-label">Total Owed</div><div className="kpi-val">{fmt(wapSummary.reduce((t,d)=>t+d.wapAmount,0))}</div></div>
+            <div className="kpi-card"><div className="kpi-label">Total Paid</div><div className="kpi-val" style={{color:"var(--green)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.totPaid,0))}</div></div>
+            <div className="kpi-card"><div className="kpi-label">Remaining</div><div className="kpi-val" style={{color:"var(--red)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.bal,0))}</div></div>
+          </div>
+          {wapSummary.map(d=>(
+            <div key={d.id} className="card" style={{marginBottom:12}}>
+              <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,marginBottom:10}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span></div>
+                <div style={{textAlign:"right"}}>
+                  <div style={{fontSize:18,fontWeight:800,color:d.bal<=0?"var(--green)":"var(--gold)",fontFamily:"var(--fd)"}}>{fmt(d.bal)} left</div>
+                  <div style={{fontSize:10,color:"var(--text3)"}}>{fmt(d.totPaid)} / {fmt(d.wapAmount)} · {d.pct.toFixed(0)}% complete</div>
                 </div>
-              ))}
-            </>
-          )}
+              </div>
+              <div className="prog-track" style={{marginBottom:10}}><div className="prog-fill" style={{width:`${d.pct}%`}}/></div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {Object.keys(wap[d.id]||{}).sort().map(yr=>{const yp=Object.values((wap[d.id]||{})[yr]||{}).reduce((t,wks)=>t+sumO(wks),0);return<div key={yr} style={{background:"var(--bg)",borderRadius:6,padding:"10px 12px",border:"1px solid var(--border)",flex:1,minWidth:80}}>
+                  <div style={{fontSize:9,color:"var(--text3)",letterSpacing:2,marginBottom:3}}>{yr}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:"var(--gold)"}}>{fmt(yp)}</div>
+                </div>;})}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Export button at bottom */}
-      <div style={{marginTop:20,padding:"16px 0",borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-        <span style={{fontSize:10,color:"var(--text3)",letterSpacing:2}}>EXPORT THIS REPORT</span>
-        <button className="btn" onClick={onExport}><Ic name="download" size={13} color="#0a0a0f"/> Download Excel (.xlsx)</button>
+      <div style={{marginTop:20,paddingTop:16,borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:10,color:"var(--text3)",letterSpacing:2}}>DOWNLOAD REPORT</span>
+        <button className="btn" onClick={onExport}><Ic name="download" size={13} color="#0a0a0f"/>Export to Excel</button>
       </div>
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  VIEW: DATA TRANSFER (Export + Import)
-// ══════════════════════════════════════════════════════════════
 function VTransfer({drivers,sales,wap,session,onExport,onImport}){
   return(
     <div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:16}}>
-        {/* Export Card */}
-        <div className="card" style={{gridColumn:"1/-1"}}>
-          <div className="sec-title">📤 Export Data to Excel</div>
-          <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:18}}>
-            Downloads a complete <strong style={{color:"var(--text)"}}>.xlsx</strong> workbook with 4 sheets:
-            <strong style={{color:"var(--gold)"}}> Drivers</strong>,
-            <strong style={{color:"var(--gold)"}}> Sales</strong>,
-            <strong style={{color:"var(--gold)"}}> {new Date().getFullYear()} Summary</strong>, and
-            <strong style={{color:"var(--gold)"}}> Work & Pay</strong>.
-            Use this to back up your data, open in Excel/Google Sheets, or share with someone.
-          </p>
-          <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap",marginBottom:16}}>
-            <span className="chip ok">✓ {drivers.length} Drivers</span>
-            <span className="chip ok">✓ {Object.keys(sales).length} Driver Sales Records</span>
-            <span className="chip ok">✓ {Object.keys(wap).length} W&P Records</span>
-          </div>
-          <button className="btn" onClick={onExport}><Ic name="download" size={14} color="#0a0a0f"/> Export to Excel (.xlsx)</button>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="sec-title">Export Data to Excel</div>
+        <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:16}}>
+          Downloads a complete .xlsx file with Drivers, Sales, and Work &amp; Pay sheets. Use this to back up your data or open in Excel/Google Sheets.
+        </p>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{drivers.length} Drivers</span>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{Object.keys(sales).length} Sales Records</span>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{Object.keys(wap).length} W&P Records</span>
         </div>
-
-        {/* Import Card */}
-        <div className="card" style={{gridColumn:"1/-1"}}>
-          <div className="sec-title">📥 Import Data from Excel</div>
-          <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:14}}>
-            Import a <strong style={{color:"var(--text)"}}>.xlsx</strong> file previously exported from Pragya Manager.
-            This will <strong style={{color:"var(--red)"}}>replace</strong> your current data with the file contents.
-            Export a backup first if needed.
-          </p>
-          <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:6,padding:"12px 16px",marginBottom:16,fontSize:11,color:"var(--text3)",lineHeight:1.7}}>
-            <strong style={{color:"var(--text2)"}}>Required sheets in the file:</strong><br/>
-            • <span style={{color:"var(--gold)"}}>Drivers</span> — columns: #, Name, Color, Tel, Tracker, Reg No., Type, W&P Amount<br/>
-            • <span style={{color:"var(--gold)"}}>Sales</span> — columns: Driver, Year, Month, Week1–5, Month Total<br/>
-            • <span style={{color:"var(--gold)"}}>Work &amp; Pay</span> — columns: Driver, Year, Month, Week1–5, Month Paid, Cum Paid, Balance
-          </div>
-          <button className="btn btn-blue" onClick={onImport}><Ic name="upload" size={14}/> Import from Excel</button>
-        </div>
+        <button className="btn" onClick={onExport}><Ic name="download" size={14} color="#0a0a0f"/>Export to Excel (.xlsx)</button>
+      </div>
+      <div className="card">
+        <div className="sec-title">Import Data from Excel</div>
+        <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:14}}>
+          Import a .xlsx file previously exported from Pragya Manager. This will replace your current data. Export a backup first if needed.
+        </p>
+        <button className="btn btn-blue" onClick={onImport}><Ic name="upload" size={14}/>Import from Excel</button>
       </div>
     </div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════
-//  IMPORT MODAL
-// ══════════════════════════════════════════════════════════════
 function ImportModal({onFile,msg,onClose}){
-  const ref=useRef();
-  const [drag,setDrag]=useState(false);
-  function handleDrop(e){
-    e.preventDefault();setDrag(false);
-    const f=e.dataTransfer.files[0];
-    if(f)onFile(f);
-  }
+  const ref=useRef();const [drag,setDrag]=useState(false);
+  function handleDrop(e){e.preventDefault();setDrag(false);const f=e.dataTransfer.files[0];if(f)onFile(f);}
   return(
     <div className="modal-ov" onClick={onClose}>
       <div className="modal-box" onClick={e=>e.stopPropagation()}>
@@ -1220,30 +1208,19 @@ function ImportModal({onFile,msg,onClose}){
           <div className="modal-title">Import Excel File</div>
           <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:3}}><Ic name="x" size={17}/></button>
         </div>
-        {msg&&<div className={`notice ${msg.type==="ok"?"notice-ok":msg.type==="warn"?"notice-warn":"notice-err"}`}>{msg.type==="ok"?"✓":"⚠"} {msg.text}</div>}
-        <div className={`import-zone${drag?" drag":""}`}
-          onDragOver={e=>{e.preventDefault();setDrag(true);}}
-          onDragLeave={()=>setDrag(false)}
-          onDrop={handleDrop}
-          onClick={()=>ref.current.click()}>
+        {msg&&<div className={`notice ${msg.type==="ok"?"notice-ok":"notice-err"}`}>{msg.type==="ok"?"✓":"⚠"} {msg.text}</div>}
+        <div className={`import-zone${drag?" drag":""}`} onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={handleDrop} onClick={()=>ref.current.click()}>
           <input ref={ref} type="file" accept=".xlsx,.xls" onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
-          <div style={{fontSize:36,marginBottom:12}}>📂</div>
-          <div style={{fontSize:13,color:"var(--text2)",fontWeight:600,marginBottom:6}}>Drop your .xlsx file here</div>
-          <div style={{fontSize:11,color:"var(--text3)"}}>or click to browse</div>
+          <div style={{fontSize:36,marginBottom:10}}>📂</div>
+          <div style={{fontSize:13,color:"var(--text2)",fontWeight:600,marginBottom:5}}>Drop .xlsx file here or tap to browse</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a Pragya Manager export file</div>
         </div>
-        <div style={{marginTop:16,fontSize:10,color:"var(--text3)",lineHeight:1.7}}>
-          ⚠ Import will <strong style={{color:"var(--red)"}}>replace</strong> your current drivers, sales and W&P data.<br/>
-          Make sure you export a backup first if needed.
-        </div>
-        <div className="modal-foot">
-          <button className="btn-outline" onClick={onClose}>Cancel</button>
-        </div>
+        <div className="modal-foot"><button className="btn-outline" onClick={onClose}>Cancel</button></div>
       </div>
     </div>
   );
 }
 
-// ── Driver Modal ──────────────────────────────────────────────
 function DrvModal({driver,onSave,onClose}){
   const [f,setF]=useState(driver||{color:"BLACK",name:"",tel:"",tracker:"",reg:"",workAndPay:false,wapAmount:0});
   const sv=(k,v)=>setF(p=>({...p,[k]:v}));
@@ -1256,8 +1233,7 @@ function DrvModal({driver,onSave,onClose}){
         </div>
         <div className="modal-grid">
           <div><label className="lbl">Driver Name</label><input className="inp" value={f.name} onChange={e=>sv("name",e.target.value.toUpperCase())} placeholder="JOHN"/></div>
-          <div>
-            <label className="lbl">Pragya Color</label>
+          <div><label className="lbl">Pragya Color</label>
             <select className="sel" style={{width:"100%"}} value={f.color} onChange={e=>sv("color",e.target.value)}>
               {DCOLORS.map(c=><option key={c}>{c}</option>)}
             </select>
@@ -1269,7 +1245,7 @@ function DrvModal({driver,onSave,onClose}){
             <input type="checkbox" id="wchk" checked={f.workAndPay} onChange={e=>sv("workAndPay",e.target.checked)} style={{accentColor:"var(--gold)",width:15,height:15}}/>
             <label htmlFor="wchk" style={{fontSize:12,cursor:"pointer",color:"var(--text2)"}}>Work &amp; Pay driver</label>
           </div>
-          {f.workAndPay&&<div style={{gridColumn:"1/-1"}}><label className="lbl">Total Amount Owed (GH₵)</label><input className="inp" type="number" value={f.wapAmount} onChange={e=>sv("wapAmount",Number(e.target.value))} placeholder="0"/></div>}
+          {f.workAndPay&&<div style={{gridColumn:"1/-1"}}><label className="lbl">Total Amount Owed (GH&#8373;)</label><input className="inp" type="number" value={f.wapAmount} onChange={e=>sv("wapAmount",Number(e.target.value))} placeholder="0"/></div>}
         </div>
         <div className="modal-foot">
           <button className="btn-outline" onClick={onClose}>Cancel</button>
