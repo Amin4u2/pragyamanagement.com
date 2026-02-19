@@ -7,15 +7,15 @@
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="Pragya"/>
-  <meta name="application-name" content="Pragya Manager"/>
-  <meta name="description" content="Pragya transport business management — track drivers, sales and work-and-pay payments"/>
+  <meta name="apple-mobile-web-app-title" content="FleetPay"/>
+  <meta name="application-name" content="FleetPay"/>
+  <meta name="description" content="FleetPay — Fleet sales management for Taxi, Bolt, Uber, Okada, Pragya &amp; more"/>
   <meta name="msapplication-TileColor" content="#0a0a0f"/>
   <!-- PWA Manifest (inline as data URI so it works from a single HTML file) -->
   <link rel="manifest" id="pwa-manifest"/>
   <!-- Apple Touch Icons (generated via JS below) -->
   <link rel="apple-touch-icon" id="apple-icon"/>
-  <title>Pragya Manager</title>
+  <title>FleetPay — Fleet Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -240,7 +240,7 @@
     ctx.font = `bold ${size*0.38}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('🛺', size/2, size/2 + size*0.03);
+    ctx.fillText('🚗', size/2, size/2 + size*0.03);
     return c.toDataURL('image/png');
   }
 
@@ -252,9 +252,9 @@
 
   // ── 2. Inject Web App Manifest ─────────────────────────────
   const manifest = {
-    name: 'Pragya Manager',
-    short_name: 'Pragya',
-    description: 'Pragya transport business management',
+    name: 'FleetPay',
+    short_name: 'FleetPay',
+    description: 'FleetPay — Fleet sales manager for any vehicle type',
     start_url: './',
     scope: './',
     display: 'standalone',
@@ -274,7 +274,7 @@
   if ('serviceWorker' in navigator) {
     // Inline service worker as a blob
     const swCode = `
-const CACHE = 'pragya-v3';
+const CACHE = 'fleetpay-v1';
 const SHELL = [
   self.location.href.replace('sw-inline','').split('?')[0]
 ];
@@ -317,7 +317,7 @@ self.addEventListener('fetch', e => {
           reg.installing.addEventListener('statechange', e => {
             if(e.target.state === 'installed' && navigator.serviceWorker.controller) {
               // New version available — show refresh prompt
-              if(confirm('New version of Pragya Manager available! Reload to update?')) {
+              if(confirm('New version of FleetPay available! Reload to update?')) {
                 window.location.reload();
               }
             }
@@ -393,6 +393,18 @@ const MONTHS=["January","February","March","April","May","June","July","August",
 const CY=new Date().getFullYear();
 const YEARS=Array.from({length:7},(_,i)=>(CY-3+i).toString());
 const DCOLORS=["BLACK","GREEN","RED","YELLOW","BLUE","ORANGE","WHITE","PURPLE"];
+
+// ── Vehicle types — each user picks one at signup ─────────────
+const VEHICLE_TYPES=[
+  {id:"pragya",  label:"Pragya (Tuk-Tuk)", icon:"🛺", regEx:"M-25-AP 000",  colorLabel:"Pragya Color"},
+  {id:"taxi",    label:"Taxi",              icon:"🚕", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"bolt",    label:"Bolt",              icon:"🚗", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"uber",    label:"Uber",              icon:"🚗", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"okada",   label:"Okada (Motorbike)", icon:"🏍️", regEx:"M-1234",       colorLabel:"Bike Color"},
+  {id:"trotro",  label:"Trotro / Minibus",  icon:"🚌", regEx:"GT-1234-24",   colorLabel:"Bus Color"},
+  {id:"other",   label:"Other Vehicle",     icon:"🚙", regEx:"REG-0000",     colorLabel:"Vehicle Color"},
+];
+function getVehicle(id){ return VEHICLE_TYPES.find(v=>v.id===id)||VEHICLE_TYPES[6]; }
 
 // ── Subscription Plans ────────────────────────────────────────
 const PLANS={
@@ -518,7 +530,7 @@ async function bootstrap() {
   try {
     const users = await getUsers();
     if (!users[DEV_U]) {
-      users[DEV_U] = { hash: hashStr(DEV_P), business: "Administrator", isDev: true, created: 0 };
+      users[DEV_U] = { hash: hashStr(DEV_P), business: "Administrator", isDev: true, vehicleType: "pragya", created: 0 };
       await setUsers(users);
     }
     // Check Firestore directly for dev drivers
@@ -584,13 +596,13 @@ function PeriodPicker({year,month,setYear,setMonth,label="PERIOD"}){
 function SetupScreen(){
   return(
     <div className="setup-wrap fade-in">
-      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:6}}>🛺 Pragya Manager</div>
+      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:6}}>🚗 FleetPay Manager</div>
       <div style={{fontSize:10,letterSpacing:4,color:"var(--text3)",marginBottom:32,textTransform:"uppercase"}}>One-time Firebase Setup Required</div>
       <div className="setup-card">
         <div style={{fontFamily:"var(--fd)",fontSize:18,fontWeight:700,marginBottom:20,color:"var(--text)"}}>Connect Cloud Sync in 5 minutes</div>
         <div className="setup-step">
           <div className="step-num">1</div>
-          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it <strong>pragya-manager</strong>, skip Google Analytics, then click <strong>Create project</strong>.</div>
+          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it anything (e.g. <strong>fleetpay-manager</strong>), skip Google Analytics, then click <strong>Create project</strong>.</div>
         </div>
         <div className="setup-step">
           <div className="step-num">2</div>
@@ -620,7 +632,7 @@ function SetupScreen(){
           <div className="step-body">Open your <strong>index.html</strong> file (from GitHub). Find the section that says <strong>PASTE YOUR FIREBASE CONFIG BELOW</strong> and replace each <code style={{color:"var(--gold)"}}>PASTE_YOUR_..._HERE</code> value with the values from your Firebase config. Save the file and push to GitHub.</div>
         </div>
         <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:8,padding:"14px 16px",marginTop:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
-          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for Pragya Manager.
+          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for FleetPay.
         </div>
       </div>
     </div>
@@ -664,7 +676,7 @@ function SubscriptionWall({username,onActivated}){
 
   return(
     <div className="auth-wrap fade-in" style={{padding:"20px 16px"}}>
-      <div className="auth-logo">🛺 PRAGYA</div>
+      <div className="auth-logo">🚗 FleetPay</div>
       <div className="auth-tagline">Subscription Required</div>
 
       {/* Expired notice */}
@@ -774,7 +786,7 @@ function SubscriptionWall({username,onActivated}){
 // ── AUTH ──────────────────────────────────────────────────────
 function Auth({onLogin}){
   const [tab,setTab]=useState("signin");
-  const [f,setF]=useState({u:"",p:"",c:"",b:""});
+  const [f,setF]=useState({u:"",p:"",c:"",b:"",vehicleType:"pragya"});
   const [err,setErr]=useState("");const [ok,setOk]=useState("");
   const [busy,setBusy]=useState(false);const [showP,setShowP]=useState(false);
   const sv=(k,v)=>setF(p=>({...p,[k]:v}));
@@ -786,7 +798,7 @@ function Auth({onLogin}){
     const usr=users[ukey];
     if(!usr){setErr("Account not found. Please sign up.");setBusy(false);return;}
     if(usr.hash!==hashStr(f.p)){setErr("Incorrect password.");setBusy(false);return;}
-    const sess={username:ukey,business:usr.business,isDev:!!usr.isDev};
+    const sess={username:ukey,business:usr.business,isDev:!!usr.isDev,vehicleType:usr.vehicleType||"other"};
     setSession(sess);onLogin(sess);setBusy(false);
   }
   async function doSignUp(){
@@ -798,7 +810,7 @@ function Auth({onLogin}){
     if(f.p!==f.c){setErr("Passwords do not match.");setBusy(false);return;}
     const users=await getUsers();
     if(users[ukey]){setErr("Username already taken.");setBusy(false);return;}
-    users[ukey]={hash:hashStr(f.p),business:f.b.trim(),isDev:false,created:Date.now()};
+    users[ukey]={hash:hashStr(f.p),business:f.b.trim(),isDev:false,vehicleType:f.vehicleType||"other",created:Date.now()};
     await setUsers(users);
     // Init new user data in Firestore directly
     if(db){
@@ -810,14 +822,14 @@ function Auth({onLogin}){
     }
     setOk("Account created! Signing you in…");
     setTimeout(()=>{
-      const sess={username:ukey,business:f.b.trim(),isDev:false};
+      const sess={username:ukey,business:f.b.trim(),isDev:false,vehicleType:f.vehicleType||"other"};
       setSession(sess);onLogin(sess);
     },900);
     setBusy(false);
   }
   return(
     <div className="auth-wrap fade-in">
-      <div className="auth-logo">🛺 PRAGYA</div>
+      <div className="auth-logo">🚗 FleetPay</div>
       <div className="auth-tagline">Business Management System</div>
       <div className="auth-card">
         <div className="auth-tabs">
@@ -829,7 +841,21 @@ function Auth({onLogin}){
         </div>
         {err&&<div className="auth-err">⚠ {err}</div>}
         {ok&&<div className="auth-ok">✓ {ok}</div>}
-        {tab==="signup"&&<div className="field"><label>Business Name</label><input placeholder="e.g. Pragya Transport Kumasi" value={f.b} onChange={e=>sv("b",e.target.value)}/></div>}
+        {tab==="signup"&&<>
+          <div className="field"><label>Business / Fleet Name</label><input placeholder="e.g. Kofi Transport, Bolt Accra" value={f.b} onChange={e=>sv("b",e.target.value)}/></div>
+          <div className="field" style={{gridColumn:"1/-1"}}>
+            <label>Vehicle Type</label>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7,marginTop:6}}>
+              {VEHICLE_TYPES.map(v=>(
+                <div key={v.id} onClick={()=>sv("vehicleType",v.id)}
+                  style={{cursor:"pointer",padding:"10px 6px",borderRadius:8,border:`2px solid ${f.vehicleType===v.id?"var(--gold)":"var(--border)"}`,background:f.vehicleType===v.id?"#f5a62311":"var(--bg)",textAlign:"center",transition:"all .15s"}}>
+                  <div style={{fontSize:22,marginBottom:4}}>{v.icon}</div>
+                  <div style={{fontSize:9,color:f.vehicleType===v.id?"var(--gold)":"var(--text3)",letterSpacing:1,lineHeight:1.3}}>{v.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
         <div className="field"><label>Username</label><input placeholder="your username" value={f.u} onChange={e=>sv("u",e.target.value)} autoComplete="username"/></div>
         <div className="field">
           <label>Password</label>
@@ -1096,7 +1122,7 @@ function Dashboard({session,subStatus,onLogout}){
     wapD.forEach(d=>{let cum=0;Object.keys(wap[d.id]||{}).sort().forEach(yr=>{MONTHS.forEach(m=>{const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);if(!mp)return;cum+=mp;wRows.push([d.name,yr,m,mw[1]||0,mw[2]||0,mw[3]||0,mw[4]||0,mw[5]||0,mp,cum,d.wapAmount-cum]);});});});
     const ws3=XLSX.utils.aoa_to_sheet(wRows);
     XLSX.utils.book_append_sheet(wb,ws3,"Work & Pay");
-    XLSX.writeFile(wb,`Pragya_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb,`FleetPay_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
   // Excel import
@@ -1129,7 +1155,7 @@ function Dashboard({session,subStatus,onLogout}){
         if(newWap){setWap(newWap);await dbSet(u,"wap",newWap);}
         setImportMsg({type:"ok",text:`Imported: ${msgs.join(", ")}`});
         setTimeout(()=>{setImportModal(false);setImportMsg(null);},2000);
-      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a Pragya Manager export file."});}
+      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a FleetPay export file."});}
     };
     reader.readAsArrayBuffer(file);
   }
@@ -1165,8 +1191,12 @@ function Dashboard({session,subStatus,onLogout}){
 
       <aside className="sidebar">
         <div className="sb-logo">
-          <div className="sb-logo-main">🛺 Pragya</div>
-          <div className="sb-logo-sub">{session.isDev?"Amin Moro Mohammed":(session.business)}{session.isDev&&<span className="dev-pill">ADMIN</span>}</div>
+          <div className="sb-logo-main">{getVehicle(session.vehicleType).icon} FleetPay</div>
+          <div className="sb-logo-sub">
+            {session.isDev?"Amin Moro Mohammed":(session.business)}
+            {session.isDev&&<span className="dev-pill">ADMIN</span>}
+            {!session.isDev&&<span style={{marginLeft:5,fontSize:8,color:"var(--text3)",letterSpacing:1}}>{getVehicle(session.vehicleType).label}</span>}
+          </div>
         </div>
         <nav style={{padding:"6px 0",flex:1}}>
           {NAV.map(n=>(
@@ -1199,7 +1229,7 @@ function Dashboard({session,subStatus,onLogout}){
 
       <div className="main">
         <div className="topbar">
-          <div className="topbar-title">{NAV.find(n=>n.id===view)?.label}</div>
+          <div className="topbar-title">{getVehicle(session.vehicleType).icon} {NAV.find(n=>n.id===view)?.label}</div>
           <div className="topbar-actions">
             {/* Sync status */}
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -1214,7 +1244,7 @@ function Dashboard({session,subStatus,onLogout}){
 
         {showInstallBanner&&<div style={{background:"linear-gradient(90deg,#1a1200,#0a0a0f)",borderBottom:"1px solid var(--gold)",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexShrink:0}}>
           <div>
-            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🛺 Install Pragya Manager</div>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🚗 Install FleetPay</div>
             <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>Add to home screen for app-like experience</div>
           </div>
           <div style={{display:"flex",gap:6,flexShrink:0}}>
@@ -1225,7 +1255,7 @@ function Dashboard({session,subStatus,onLogout}){
         <div className="content" ref={contentRef}>
           <div key={view}>
           {view==="dashboard"&&<VDash regD={regD} wapD={wapD} periodSales={periodSales} yearSales={yearSales} wapBal={wapBal} totOwed={totOwed} sales={sales} {...period}/>}
-          {view==="drivers"  &&<VDrivers drivers={drivers} setModal={setModal} delDrv={delDrv}/>}
+          {view==="drivers"  &&<VDrivers drivers={drivers} vehicleType={session.vehicleType} setModal={setModal} delDrv={delDrv}/>}
           {view==="sales"    &&<VSales regD={regD} sales={sales} updSale={updSale} {...period}/>}
           {view==="workpay"  &&<VWap wapD={wapD} wap={wap} updWap={updWap} {...period}/>}
           {view==="reports"  &&<VReports regD={regD} wapD={wapD} drivers={drivers} sales={sales} wap={wap} {...period} onExport={doExport}/>}
@@ -1237,7 +1267,7 @@ function Dashboard({session,subStatus,onLogout}){
 
       <MobileNav NAV={NAV} view={view} switchView={switchView} onLogout={onLogout} session={session} syncState={syncState}/>
 
-      {modal&&<DrvModal driver={modal.data||null} onSave={saveDrv} onClose={()=>setModal(null)}/>}
+      {modal&&<DrvModal driver={modal.data||null} vehicleType={session.vehicleType} onSave={saveDrv} onClose={()=>setModal(null)}/>}
       {importModal&&<ImportModal onFile={handleImport} msg={importMsg} onClose={()=>{setImportModal(false);setImportMsg(null);}}/>}
     </div>
   );
@@ -1308,7 +1338,7 @@ function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,sel
         </div>
       </div>
       {regD.length===0
-        ?<div className="card empty-state"><div className="empty-ico">🛺</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div></div>
+        ?<div className="card empty-state"><div className="empty-ico">{vt.icon}</div><div style={{fontSize:12,letterSpacing:2}}>NO {vt.id==="okada"?"RIDERS":"DRIVERS"} YET</div></div>
         :<div className="card">
           <div className="sec-title">Leaderboard — {selMonth} {selYear}</div>
           {[...regD].map(d=>({...d,total:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})})).sort((a,b)=>b.total-a.total).map((d,i)=>(
@@ -1328,11 +1358,12 @@ function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,sel
   );
 }
 
-function VDrivers({drivers,setModal,delDrv}){
+function VDrivers({drivers,vehicleType,setModal,delDrv}){
+  const vt=getVehicle(vehicleType||"other");
   if(!drivers.length)return(
     <div className="card empty-state">
       <div className="empty-ico">👤</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div>
-      <div style={{fontSize:11,marginTop:8,marginBottom:18}}>Add your first Pragya driver</div>
+      <div style={{fontSize:11,marginTop:8,marginBottom:18}}>Add your first {vt.label} driver</div>
       <button className="btn" onClick={()=>setModal({type:"add"})}>+ Add First Driver</button>
     </div>
   );
@@ -1707,7 +1738,7 @@ function InstallGuide(){
         1. Tap the <strong style={{color:"var(--text)"}}>Share button</strong> <span style={{color:"var(--gold)"}}>⬆</span> at the bottom of Safari<br/>
         2. Scroll down and tap <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
         3. Tap <strong style={{color:"var(--text)"}}>Add</strong> in the top right<br/>
-        The Pragya icon will appear on your home screen — tap it to open like a normal app.
+        The FleetPay icon will appear on your home screen — tap it to open like a normal app.
       </div>
     </div>
   );
@@ -1715,7 +1746,7 @@ function InstallGuide(){
     <div style={{background:"#3b82f611",border:"1px solid #3b82f633",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
       <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:6}}>💻 Install on Desktop (Chrome/Edge)</div>
       <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
-        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install Pragya Manager</strong>.
+        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install FleetPay</strong>.
       </div>
     </div>
   );
@@ -2135,7 +2166,7 @@ function VTransfer({drivers,sales,wap,session,onExport,onImport}){
       <div className="card">
         <div className="sec-title">Import Data from Excel</div>
         <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:14}}>
-          Import a .xlsx file previously exported from Pragya Manager. This will replace your current data. Export a backup first if needed.
+          Import a .xlsx file previously exported from FleetPay. This will replace your current data. Export a backup first if needed.
         </p>
         <button className="btn btn-blue" onClick={onImport}><Ic name="upload" size={14}/>Import from Excel</button>
       </div>
@@ -2158,7 +2189,7 @@ function ImportModal({onFile,msg,onClose}){
           <input ref={ref} type="file" accept=".xlsx,.xls" onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
           <div style={{fontSize:36,marginBottom:10}}>📂</div>
           <div style={{fontSize:13,color:"var(--text2)",fontWeight:600,marginBottom:5}}>Drop .xlsx file here or tap to browse</div>
-          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a Pragya Manager export file</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a FleetPay export file</div>
         </div>
         <div className="modal-foot"><button className="btn-outline" onClick={onClose}>Cancel</button></div>
       </div>
@@ -2166,7 +2197,8 @@ function ImportModal({onFile,msg,onClose}){
   );
 }
 
-function DrvModal({driver,onSave,onClose}){
+function DrvModal({driver,onSave,onClose,vehicleType}){
+  const vt=getVehicle(vehicleType||"other");
   const [f,setF]=useState(driver||{color:"BLACK",name:"",tel:"",tracker:"",reg:"",workAndPay:false,wapAmount:0});
   const sv=(k,v)=>setF(p=>({...p,[k]:v}));
   return(
@@ -2178,14 +2210,14 @@ function DrvModal({driver,onSave,onClose}){
         </div>
         <div className="modal-grid">
           <div><label className="lbl">Driver Name</label><input className="inp" value={f.name} onChange={e=>sv("name",e.target.value.toUpperCase())} placeholder="JOHN"/></div>
-          <div><label className="lbl">Pragya Color</label>
+          <div><label className="lbl">{vt.colorLabel}</label>
             <select className="sel" style={{width:"100%"}} value={f.color} onChange={e=>sv("color",e.target.value)}>
               {DCOLORS.map(c=><option key={c}>{c}</option>)}
             </select>
           </div>
           <div><label className="lbl">Tel. Number</label><input className="inp" value={f.tel} onChange={e=>sv("tel",e.target.value)} placeholder="0200000000"/></div>
           <div><label className="lbl">Tracker No.</label><input className="inp" value={f.tracker} onChange={e=>sv("tracker",e.target.value)} placeholder="0200000000"/></div>
-          <div style={{gridColumn:"1/-1"}}><label className="lbl">Registration No.</label><input className="inp" value={f.reg} onChange={e=>sv("reg",e.target.value.toUpperCase())} placeholder="M-25-AP 000"/></div>
+          <div style={{gridColumn:"1/-1"}}><label className="lbl">Registration No.</label><input className="inp" value={f.reg} onChange={e=>sv("reg",e.target.value.toUpperCase())} placeholder={vt.regEx}/></div>
           <div style={{gridColumn:"1/-1",display:"flex",alignItems:"center",gap:10,padding:12,background:"var(--bg)",borderRadius:6,border:"1px solid var(--border)"}}>
             <input type="checkbox" id="wchk" checked={f.workAndPay} onChange={e=>sv("workAndPay",e.target.checked)} style={{accentColor:"var(--gold)",width:15,height:15}}/>
             <label htmlFor="wchk" style={{fontSize:12,cursor:"pointer",color:"var(--text2)"}}>Work &amp; Pay driver</label>
