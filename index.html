@@ -7,15 +7,15 @@
   <meta name="mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="FleetPay"/>
-  <meta name="application-name" content="FleetPay"/>
-  <meta name="description" content="FleetPay — Fleet sales management for Taxi, Bolt, Uber, Okada, Pragya &amp; more"/>
+  <meta name="apple-mobile-web-app-title" content="FleetSales"/>
+  <meta name="application-name" content="FleetSales"/>
+  <meta name="description" content="FleetSales — Business Sales Management System for transport operators"/>
   <meta name="msapplication-TileColor" content="#0a0a0f"/>
   <!-- PWA Manifest (inline as data URI so it works from a single HTML file) -->
   <link rel="manifest" id="pwa-manifest"/>
   <!-- Apple Touch Icons (generated via JS below) -->
   <link rel="apple-touch-icon" id="apple-icon"/>
-  <title>FleetPay — Fleet Manager</title>
+  <title>FleetSales — Business Sales Management System</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -223,24 +223,47 @@
 <script>
 (function(){
   // ── 1. Generate app icon using Canvas ──────────────────────
-  function makeIcon(size) {
+  // Vehicle icon map — matches VEHICLE_TYPES ids
+  const VEHICLE_ICONS = {
+    pragya: '🛺', taxi: '🚕', bolt: '🚗', uber: '🚗',
+    okada: '🏍️', trotro: '🚌', other: '🚙'
+  };
+
+  // Read saved vehicle type from localStorage session
+  function getSavedVehicleIcon() {
+    try {
+      const s = localStorage.getItem('pg-session');
+      if (s) {
+        const sess = JSON.parse(s);
+        return VEHICLE_ICONS[sess.vehicleType] || '🚗';
+      }
+    } catch(e) {}
+    return '🚗';
+  }
+
+  function makeIcon(size, emoji) {
+    const icon = emoji || getSavedVehicleIcon();
     const c = document.createElement('canvas');
     c.width = c.height = size;
     const ctx = c.getContext('2d');
-    // Background
+    // Dark background
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, size, size);
     // Gold circle
     ctx.fillStyle = '#f5a623';
     ctx.beginPath();
-    ctx.arc(size/2, size/2, size*0.42, 0, Math.PI*2);
+    ctx.arc(size/2, size/2, size*0.44, 0, Math.PI*2);
     ctx.fill();
-    // Rickshaw emoji text
+    // Inner dark circle for contrast
     ctx.fillStyle = '#0a0a0f';
-    ctx.font = `bold ${size*0.38}px Arial`;
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.36, 0, Math.PI*2);
+    ctx.fill();
+    // Vehicle emoji
+    ctx.font = `${size*0.36}px Arial`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('🚗', size/2, size/2 + size*0.03);
+    ctx.fillText(icon, size/2, size/2 + size*0.03);
     return c.toDataURL('image/png');
   }
 
@@ -250,11 +273,34 @@
   // Set apple touch icon
   document.getElementById('apple-icon').href = icon192;
 
+  // Expose so React can update icon after login
+  window.__updatePWAIcon = function(vehicleType) {
+    const emoji = VEHICLE_ICONS[vehicleType] || '🚗';
+    const i192 = makeIcon(192, emoji);
+    const i512 = makeIcon(512, emoji);
+    document.getElementById('apple-icon').href = i192;
+    // Rebuild manifest with new icon
+    const manifest = {
+      name: 'FleetSales', short_name: 'FleetSales',
+      description: 'FleetSales — Business Sales Management System',
+      start_url: './', scope: './', display: 'standalone',
+      orientation: 'portrait-primary',
+      background_color: '#0a0a0f', theme_color: '#0a0a0f',
+      categories: ['business', 'finance'],
+      icons: [
+        { src: i192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: i512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+    document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+  };
+
   // ── 2. Inject Web App Manifest ─────────────────────────────
   const manifest = {
-    name: 'FleetPay',
-    short_name: 'FleetPay',
-    description: 'FleetPay — Fleet sales manager for any vehicle type',
+    name: 'FleetSales',
+    short_name: 'FleetSales',
+    description: 'FleetSales — Business Sales Management System for Taxi, Bolt, Uber, Okada, Pragya & more',
     start_url: './',
     scope: './',
     display: 'standalone',
@@ -274,7 +320,7 @@
   if ('serviceWorker' in navigator) {
     // Inline service worker as a blob
     const swCode = `
-const CACHE = 'fleetpay-v1';
+const CACHE = 'fleetsales-v1';
 const SHELL = [
   self.location.href.replace('sw-inline','').split('?')[0]
 ];
@@ -317,7 +363,7 @@ self.addEventListener('fetch', e => {
           reg.installing.addEventListener('statechange', e => {
             if(e.target.state === 'installed' && navigator.serviceWorker.controller) {
               // New version available — show refresh prompt
-              if(confirm('New version of FleetPay available! Reload to update?')) {
+              if(confirm('New version of FleetSales available! Reload to update?')) {
                 window.location.reload();
               }
             }
@@ -530,7 +576,7 @@ async function bootstrap() {
   try {
     const users = await getUsers();
     if (!users[DEV_U]) {
-      users[DEV_U] = { hash: hashStr(DEV_P), business: "Administrator", isDev: true, vehicleType: "pragya", created: 0 };
+      users[DEV_U] = { hash: hashStr(DEV_P), business: "AMIN MOTORS & TRANSPORT", isDev: true, vehicleType: "pragya", created: 0 };
       await setUsers(users);
     }
     // Check Firestore directly for dev drivers
@@ -596,13 +642,14 @@ function PeriodPicker({year,month,setYear,setMonth,label="PERIOD"}){
 function SetupScreen(){
   return(
     <div className="setup-wrap fade-in">
-      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:6}}>🚗 FleetPay Manager</div>
+      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:4}}>🚗 FleetSales</div>
+      <div style={{fontSize:9,letterSpacing:3,color:"var(--text3)",marginBottom:6,textTransform:"uppercase"}}>Business Sales Management System</div>
       <div style={{fontSize:10,letterSpacing:4,color:"var(--text3)",marginBottom:32,textTransform:"uppercase"}}>One-time Firebase Setup Required</div>
       <div className="setup-card">
         <div style={{fontFamily:"var(--fd)",fontSize:18,fontWeight:700,marginBottom:20,color:"var(--text)"}}>Connect Cloud Sync in 5 minutes</div>
         <div className="setup-step">
           <div className="step-num">1</div>
-          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it anything (e.g. <strong>fleetpay-manager</strong>), skip Google Analytics, then click <strong>Create project</strong>.</div>
+          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it anything (e.g. <strong>fleetsales-manager</strong>), skip Google Analytics, then click <strong>Create project</strong>.</div>
         </div>
         <div className="setup-step">
           <div className="step-num">2</div>
@@ -632,7 +679,7 @@ function SetupScreen(){
           <div className="step-body">Open your <strong>index.html</strong> file (from GitHub). Find the section that says <strong>PASTE YOUR FIREBASE CONFIG BELOW</strong> and replace each <code style={{color:"var(--gold)"}}>PASTE_YOUR_..._HERE</code> value with the values from your Firebase config. Save the file and push to GitHub.</div>
         </div>
         <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:8,padding:"14px 16px",marginTop:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
-          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for FleetPay.
+          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for FleetSales.
         </div>
       </div>
     </div>
@@ -676,8 +723,8 @@ function SubscriptionWall({username,onActivated}){
 
   return(
     <div className="auth-wrap fade-in" style={{padding:"20px 16px"}}>
-      <div className="auth-logo">🚗 FleetPay</div>
-      <div className="auth-tagline">Subscription Required</div>
+      <div className="auth-logo">{tab==="signup"?(VEHICLE_TYPES.find(v=>v.id===f.vehicleType)||VEHICLE_TYPES[0]).icon:"🚗"} FleetSales</div>
+      <div className="auth-tagline" style={{fontSize:10,letterSpacing:3}}>BUSINESS SALES MANAGEMENT SYSTEM</div>
 
       {/* Expired notice */}
       {sub.expired&&sub.plan&&(
@@ -829,7 +876,7 @@ function Auth({onLogin}){
   }
   return(
     <div className="auth-wrap fade-in">
-      <div className="auth-logo">🚗 FleetPay</div>
+      <div className="auth-logo">🚗 FleetSales</div>
       <div className="auth-tagline">Business Management System</div>
       <div className="auth-card">
         <div className="auth-tabs">
@@ -893,8 +940,9 @@ function App(){
 
   const login=u=>{
     setSession(u);setSess(u);
-    // Start trial for brand-new users (not dev account)
     if(!u.isDev && !getSub(u.username)) startTrial(u.username,"standard");
+    // Update PWA icon to match this account's vehicle type
+    if(window.__updatePWAIcon) window.__updatePWAIcon(u.vehicleType||'other');
   };
   const logout=()=>{setSession(null);setSess(null);};
 
@@ -922,6 +970,7 @@ function MobileNav({NAV,view,switchView,onLogout,session,syncState}){
 
   const syncColor={saving:"var(--gold)",saved:"var(--green)",error:"var(--red)"}[syncState]||"var(--text3)";
   const syncLabel={saving:"Saving…",saved:"Saved ✓",error:"Sync Error"}[syncState]||"";
+  const vt=getVehicle(session.vehicleType);
 
   return(
     <>
@@ -1122,7 +1171,7 @@ function Dashboard({session,subStatus,onLogout}){
     wapD.forEach(d=>{let cum=0;Object.keys(wap[d.id]||{}).sort().forEach(yr=>{MONTHS.forEach(m=>{const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);if(!mp)return;cum+=mp;wRows.push([d.name,yr,m,mw[1]||0,mw[2]||0,mw[3]||0,mw[4]||0,mw[5]||0,mp,cum,d.wapAmount-cum]);});});});
     const ws3=XLSX.utils.aoa_to_sheet(wRows);
     XLSX.utils.book_append_sheet(wb,ws3,"Work & Pay");
-    XLSX.writeFile(wb,`FleetPay_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    XLSX.writeFile(wb,`FleetSales_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
   // Excel import
@@ -1155,7 +1204,7 @@ function Dashboard({session,subStatus,onLogout}){
         if(newWap){setWap(newWap);await dbSet(u,"wap",newWap);}
         setImportMsg({type:"ok",text:`Imported: ${msgs.join(", ")}`});
         setTimeout(()=>{setImportModal(false);setImportMsg(null);},2000);
-      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a FleetPay export file."});}
+      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a FleetSales export file."});}
     };
     reader.readAsArrayBuffer(file);
   }
@@ -1191,11 +1240,23 @@ function Dashboard({session,subStatus,onLogout}){
 
       <aside className="sidebar">
         <div className="sb-logo">
-          <div className="sb-logo-main">{getVehicle(session.vehicleType).icon} FleetPay</div>
-          <div className="sb-logo-sub">
-            {session.isDev?"Amin Moro Mohammed":(session.business)}
-            {session.isDev&&<span className="dev-pill">ADMIN</span>}
-            {!session.isDev&&<span style={{marginLeft:5,fontSize:8,color:"var(--text3)",letterSpacing:1}}>{getVehicle(session.vehicleType).label}</span>}
+          {/* Vehicle icon — big and prominent */}
+          <div style={{fontSize:32,lineHeight:1,marginBottom:6}}>
+            {getVehicle(session.vehicleType).icon}
+          </div>
+          {/* Business name — this is their identity */}
+          <div className="sb-logo-main" style={{fontSize:14,lineHeight:1.3,wordBreak:"break-word"}}>
+            {session.business}
+          </div>
+          {/* Vehicle type + system label */}
+          <div className="sb-logo-sub" style={{marginTop:4}}>
+            <span style={{color:"var(--gold)",fontSize:8,letterSpacing:1}}>
+              {getVehicle(session.vehicleType).label}
+            </span>
+            {session.isDev&&<span className="dev-pill" style={{marginLeft:5}}>ADMIN</span>}
+          </div>
+          <div style={{fontSize:7,letterSpacing:2,color:"var(--text3)",marginTop:3,textTransform:"uppercase"}}>
+            FleetSales · Business Sales System
           </div>
         </div>
         <nav style={{padding:"6px 0",flex:1}}>
@@ -1229,7 +1290,17 @@ function Dashboard({session,subStatus,onLogout}){
 
       <div className="main">
         <div className="topbar">
-          <div className="topbar-title">{getVehicle(session.vehicleType).icon} {NAV.find(n=>n.id===view)?.label}</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,overflow:"hidden"}}>
+            <span style={{fontSize:20,flexShrink:0}}>{getVehicle(session.vehicleType).icon}</span>
+            <div style={{overflow:"hidden"}}>
+              <div className="topbar-title" style={{fontSize:11,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                {session.business||session.username}
+              </div>
+              <div style={{fontSize:8,color:"var(--text3)",letterSpacing:1,textTransform:"uppercase"}}>
+                {NAV.find(n=>n.id===view)?.label}
+              </div>
+            </div>
+          </div>
           <div className="topbar-actions">
             {/* Sync status */}
             <div style={{display:"flex",alignItems:"center",gap:5}}>
@@ -1244,7 +1315,7 @@ function Dashboard({session,subStatus,onLogout}){
 
         {showInstallBanner&&<div style={{background:"linear-gradient(90deg,#1a1200,#0a0a0f)",borderBottom:"1px solid var(--gold)",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexShrink:0}}>
           <div>
-            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🚗 Install FleetPay</div>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🚗 Install FleetSales</div>
             <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>Add to home screen for app-like experience</div>
           </div>
           <div style={{display:"flex",gap:6,flexShrink:0}}>
@@ -1316,7 +1387,12 @@ function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,selYear,sel
     <div>
       <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="VIEWING"/>
       <div className="stats-grid">
-        <div className="stat-card"><div className="stat-label">Drivers</div><div className="stat-val">{regD.length+wapD.length}</div><div className="stat-sub">{regD.length} reg · {wapD.length} W&P</div></div>
+        <div className="stat-card" style={{borderColor:"var(--gold)",borderWidth:1}}>
+          <div style={{fontSize:24,marginBottom:4}}>{getVehicle(session.vehicleType).icon}</div>
+          <div className="stat-label" style={{fontSize:9,color:"var(--gold)"}}>{session.business||session.username}</div>
+          <div className="stat-val" style={{fontSize:16}}>{regD.length+wapD.length}</div>
+          <div className="stat-sub">{regD.length} reg · {wapD.length} W&P</div>
+        </div>
         <div className="stat-card"><div className="stat-label">{selMonth.slice(0,3)} {selYear}</div><div className="stat-val">{fmt(periodSales)}</div><div className="stat-sub">period sales</div></div>
         <div className="stat-card"><div className="stat-label">{selYear} Total</div><div className="stat-val">{fmt(yearSales)}</div><div className="stat-sub">full year</div></div>
         <div className="stat-card"><div className="stat-label">W&P Balance</div><div className="stat-val" style={{color:wapBal<=0?"var(--green)":"var(--gold)"}}>{fmt(wapBal)}</div><div className="stat-sub">of {fmt(totOwed)}</div></div>
@@ -1738,7 +1814,7 @@ function InstallGuide(){
         1. Tap the <strong style={{color:"var(--text)"}}>Share button</strong> <span style={{color:"var(--gold)"}}>⬆</span> at the bottom of Safari<br/>
         2. Scroll down and tap <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
         3. Tap <strong style={{color:"var(--text)"}}>Add</strong> in the top right<br/>
-        The FleetPay icon will appear on your home screen — tap it to open like a normal app.
+        The FleetSales icon will appear on your home screen — tap it to open like a normal app.
       </div>
     </div>
   );
@@ -1746,7 +1822,7 @@ function InstallGuide(){
     <div style={{background:"#3b82f611",border:"1px solid #3b82f633",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
       <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:6}}>💻 Install on Desktop (Chrome/Edge)</div>
       <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
-        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install FleetPay</strong>.
+        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install FleetSales</strong>.
       </div>
     </div>
   );
@@ -2166,7 +2242,7 @@ function VTransfer({drivers,sales,wap,session,onExport,onImport}){
       <div className="card">
         <div className="sec-title">Import Data from Excel</div>
         <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:14}}>
-          Import a .xlsx file previously exported from FleetPay. This will replace your current data. Export a backup first if needed.
+          Import a .xlsx file previously exported from FleetSales. This will replace your current data. Export a backup first if needed.
         </p>
         <button className="btn btn-blue" onClick={onImport}><Ic name="upload" size={14}/>Import from Excel</button>
       </div>
@@ -2189,7 +2265,7 @@ function ImportModal({onFile,msg,onClose}){
           <input ref={ref} type="file" accept=".xlsx,.xls" onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
           <div style={{fontSize:36,marginBottom:10}}>📂</div>
           <div style={{fontSize:13,color:"var(--text2)",fontWeight:600,marginBottom:5}}>Drop .xlsx file here or tap to browse</div>
-          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a FleetPay export file</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a FleetSales export file</div>
         </div>
         <div className="modal-foot"><button className="btn-outline" onClick={onClose}>Cancel</button></div>
       </div>
