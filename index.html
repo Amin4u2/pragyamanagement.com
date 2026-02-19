@@ -1,0 +1,2277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="FleetSales"/>
+  <meta name="application-name" content="FleetSales"/>
+  <meta name="description" content="FleetSales — Business Sales Management System for Taxi, Bolt, Uber, Okada, Pragya &amp; more. Track drivers, sales and work-and-pay across your fleet."/>
+  <meta name="msapplication-TileColor" content="#0a0a0f"/>
+  <meta property="og:title" content="FleetSales — Business Sales Management System"/>
+  <meta property="og:description" content="Track drivers, sales and work-and-pay for your Taxi, Bolt, Uber, Okada or Pragya fleet."/>
+  <meta property="og:url" content="https://fleetsales.web.app"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="FleetSales"/>
+  <meta name="twitter:description" content="Business Sales Management System for transport fleets"/>
+  <!-- PWA Manifest (inline as data URI so it works from a single HTML file) -->
+  <link rel="manifest" id="pwa-manifest"/>
+  <!-- Inline SVG favicon — no external file needed, loads instantly -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%230a0a0f'/><circle cx='50' cy='50' r='42' fill='%23f5a623'/><circle cx='50' cy='50' r='34' fill='%230a0a0f'/><text y='64' x='50' text-anchor='middle' font-size='40'>🚗</text></svg>"/>
+  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%230a0a0f'/><circle cx='50' cy='50' r='42' fill='%23f5a623'/><circle cx='50' cy='50' r='34' fill='%230a0a0f'/><text y='64' x='50' text-anchor='middle' font-size='40'>🚗</text></svg>"/>
+  <link rel="icon" id="favicon-icon" type="image/png"/>
+  <!-- Apple Touch Icons (generated via JS below) -->
+  <link rel="apple-touch-icon" id="apple-icon"/>
+  <title>FleetSales — Business Sales Management System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --gold:#f5a623;--gold2:#ffd166;--bg:#0a0a0f;--bg2:#111118;
+      --border:#22222f;--border2:#2a2a3a;--text:#e8e4f0;
+      --text2:#9994aa;--text3:#55525f;--red:#ef4444;--green:#22c55e;--blue:#3b82f6;
+      --fd:'Syne',sans-serif;--fm:'JetBrains Mono',monospace;
+      --r:8px;--nh:60px;
+    }
+    html,body,#root{height:100%;}
+    body{background:var(--bg);color:var(--text);font-family:var(--fm);-webkit-font-smoothing:antialiased;overscroll-behavior:none;}
+    input,select,button{font-family:var(--fm);-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+    input[type=number]::-webkit-inner-spin-button{opacity:1;}
+    ::-webkit-scrollbar{width:4px;height:4px;}
+    ::-webkit-scrollbar-track{background:var(--bg2);}
+    ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+    /* SETUP SCREEN */
+    .setup-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 50% 0%,#001a10 0%,var(--bg) 60%);}
+    .setup-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:560px;}
+    .setup-step{display:flex;gap:14px;margin-bottom:20px;padding:16px;background:var(--bg);border-radius:8px;border:1px solid var(--border);}
+    .step-num{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#0a0a0f;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--fd);}
+    .step-body{font-size:12px;color:var(--text2);line-height:1.7;}
+    .step-body a{color:var(--gold);text-decoration:none;}
+    .step-body strong{color:var(--text);}
+    .cfg-inp{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:10px 12px;font-size:12px;font-family:var(--fm);outline:none;margin-top:6px;transition:border-color .2s;}
+    .cfg-inp:focus{border-color:var(--gold);}
+    .cfg-inp::placeholder{color:var(--text3);}
+
+    /* SYNC INDICATOR */
+    .sync-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:999;background:transparent;transition:background .3s;}
+    .sync-bar.saving{background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold));background-size:200%;animation:syncPulse 1.2s linear infinite;}
+    .sync-bar.saved{background:var(--green);}
+    .sync-bar.error{background:var(--red);}
+    @keyframes syncPulse{0%{background-position:0%}100%{background-position:200%}}
+    .sync-status{font-size:9px;letter-spacing:2px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+    .sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+    .sync-dot.saving{background:var(--gold);animation:blink .8s infinite;}
+    .sync-dot.saved{background:var(--green);}
+    .sync-dot.error{background:var(--red);}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* AUTH */
+    .auth-wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;background:radial-gradient(ellipse at 50% 0%,#1a1200 0%,var(--bg) 60%);}
+    .auth-logo{font-family:var(--fd);font-size:32px;font-weight:800;color:var(--gold);letter-spacing:-1px;margin-bottom:4px;}
+    .auth-tagline{font-size:10px;letter-spacing:4px;color:var(--text3);margin-bottom:40px;text-transform:uppercase;}
+    .auth-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:32px;width:100%;max-width:400px;}
+    .auth-tabs{display:flex;margin-bottom:28px;border-bottom:1px solid var(--border);}
+    .auth-tab{flex:1;padding:10px;text-align:center;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .2s;}
+    .auth-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+    .field{margin-bottom:16px;}
+    .field label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+    .field input{width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:12px 14px;font-size:14px;outline:none;transition:border-color .2s;}
+    .field input:focus{border-color:var(--gold);}
+    .auth-btn{width:100%;padding:14px;background:var(--gold);color:#0a0a0f;border:none;border-radius:6px;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:8px;font-family:var(--fd);transition:opacity .2s;}
+    .auth-btn:hover{opacity:.9;} .auth-btn:disabled{opacity:.5;cursor:not-allowed;}
+    .auth-err{background:#ef444422;border:1px solid #ef444444;border-radius:6px;padding:10px 14px;font-size:11px;color:var(--red);margin-bottom:14px;}
+    .auth-ok{background:#22c55e22;border:1px solid #22c55e44;border-radius:6px;padding:10px 14px;font-size:11px;color:var(--green);margin-bottom:14px;}
+
+    /* APP SHELL */
+    .app{display:flex;height:100vh;overflow:hidden;}
+    .sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+    .sb-logo{padding:20px 20px 18px;border-bottom:1px solid var(--border);}
+    .sb-logo-main{font-family:var(--fd);font-size:18px;font-weight:800;color:var(--gold);}
+    .sb-logo-sub{font-size:9px;letter-spacing:2px;color:var(--text3);margin-top:3px;line-height:1.5;}
+    .nav-item{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border-left:2px solid transparent;transition:all .15s;}
+    .nav-item.active{color:var(--gold);background:#f5a62308;border-left-color:var(--gold);}
+    .nav-item:hover:not(.active){color:var(--text2);background:#ffffff04;}
+    .sb-footer{margin-top:auto;padding:14px 20px;border-top:1px solid var(--border);}
+    .sb-user{font-size:10px;color:var(--text3);margin-bottom:8px;} .sb-user span{color:var(--gold);}
+    .logout-btn{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);background:none;border:1px solid var(--border);border-radius:4px;padding:5px 12px;cursor:pointer;font-family:var(--fm);transition:all .15s;}
+    .logout-btn:hover{color:var(--red);border-color:var(--red);}
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .topbar{padding:0 20px;height:54px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);flex-shrink:0;gap:10px;}
+    .topbar-title{font-family:var(--fd);font-size:15px;font-weight:700;white-space:nowrap;}
+    .topbar-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+    .content{flex:1;overflow-y:auto;padding:20px 24px;-webkit-overflow-scrolling:touch;scroll-behavior:smooth;}
+
+    /* BOTTOM NAV */
+    .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);z-index:50;height:var(--nh);padding-bottom:env(safe-area-inset-bottom,0px);}
+    .bn-inner{display:flex;height:100%;}
+    .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--text3);font-size:7px;letter-spacing:1px;text-transform:uppercase;border:none;background:none;font-family:var(--fm);padding:0;-webkit-tap-highlight-color:transparent;min-height:44px;touch-action:manipulation;}
+    .bn-item.active{color:var(--gold);}
+    .bn-dot{width:3px;height:3px;border-radius:50%;background:var(--gold);margin-top:1px;}
+
+    /* PERIOD PICKER */
+    .period-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;padding:12px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);}
+    @media(max-width:768px){.period-bar{position:sticky;top:0;z-index:40;border-radius:0;margin:-12px -12px 14px;border-left:none;border-right:none;border-top:none;padding:10px 12px;}}
+    .period-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);}
+    .period-sel{background:var(--bg);border:2px solid var(--gold);border-radius:8px;color:var(--gold);padding:10px 14px;font-size:14px;font-family:var(--fm);outline:none;font-weight:700;cursor:pointer;-webkit-appearance:none;appearance:none;min-width:110px;text-align:center;}
+
+    /* COMMON */
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:20px;}
+    .sec-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+    .stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:15px 18px;}
+    .stat-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;}
+    .stat-val{font-size:20px;font-weight:700;color:var(--gold);font-family:var(--fd);line-height:1;}
+    .stat-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+    .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    table{width:100%;border-collapse:collapse;font-size:12px;min-width:460px;}
+    th{padding:9px 12px;text-align:left;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);font-weight:600;white-space:nowrap;}
+    td{padding:10px 12px;border-bottom:1px solid #13131a;color:var(--text2);vertical-align:middle;}
+    tr:last-child td{border-bottom:none;}
+    tfoot td{border-top:2px solid var(--border2);border-bottom:none;color:var(--text);font-weight:700;}
+    .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;letter-spacing:1px;font-weight:700;}
+    .btn{padding:9px 16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:#0a0a0f;border:none;border-radius:6px;cursor:pointer;font-weight:700;font-family:var(--fd);transition:opacity .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+    .btn:hover{opacity:.9;}
+    .btn-blue{background:var(--blue)!important;color:#fff!important;}
+    .btn-sm{padding:5px 11px;font-size:9px;letter-spacing:1px;text-transform:uppercase;background:transparent;color:var(--gold);border:1px solid #f5a62344;border-radius:4px;cursor:pointer;font-family:var(--fm);}
+    .btn-danger{padding:5px 11px;font-size:9px;background:transparent;color:var(--red);border:1px solid #ef444444;border-radius:4px;cursor:pointer;font-family:var(--fm);}
+    .btn-outline{padding:7px 14px;font-size:10px;letter-spacing:1px;text-transform:uppercase;background:transparent;color:var(--text2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-family:var(--fm);display:inline-flex;align-items:center;gap:6px;}
+    .btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+    .inp{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:10px 12px;font-size:13px;font-family:var(--fm);width:100%;outline:none;transition:border-color .2s;}
+    .inp:focus{border-color:var(--gold);}
+    .sel{background:var(--bg);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:8px 12px;font-size:12px;font-family:var(--fm);outline:none;}
+    .wk-inp{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);padding:6px 4px;font-size:12px;font-family:var(--fm);width:100%;text-align:center;outline:none;}
+    .wk-inp:focus{border-color:var(--gold);}
+    .lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:block;}
+    .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+    .modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:24px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;}
+    .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+    .modal-title{font-family:var(--fd);font-size:16px;font-weight:700;}
+    .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);}
+    .drv-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+    .info-row{display:flex;gap:8px;font-size:11px;color:var(--text3);margin-top:5px;flex-wrap:wrap;}
+    .prog-track{background:var(--bg);border-radius:99px;height:5px;}
+    .prog-fill{background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:99px;height:5px;transition:width .4s;}
+    .sales-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+    .wks-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px;}
+    .wk-box label{font-size:8px;letter-spacing:1px;color:var(--text3);margin-bottom:3px;display:block;text-align:center;}
+    .wk-box{display:flex;flex-direction:column;}
+    .report-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+    .report-tab{flex:1;padding:10px 6px;text-align:center;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;color:var(--text3);background:transparent;border:none;font-family:var(--fm);transition:all .2s;border-right:1px solid var(--border);}
+    .report-tab:last-child{border-right:none;}
+    .report-tab.active{color:#0a0a0f;background:var(--gold);font-weight:700;}
+    .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+    .bar-label{font-size:11px;color:var(--text2);width:80px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .bar-track{flex:1;background:var(--bg);border-radius:4px;height:22px;position:relative;overflow:hidden;}
+    .bar-fill{height:100%;border-radius:4px;transition:width .5s;display:flex;align-items:center;padding-left:8px;}
+    .bar-fill span{font-size:10px;font-weight:600;white-space:nowrap;}
+    .bar-val{font-size:11px;color:var(--gold);font-weight:700;width:90px;text-align:right;flex-shrink:0;}
+    .rank-1{background:linear-gradient(90deg,var(--gold),var(--gold2));}
+    .rank-2{background:linear-gradient(90deg,#9994aa,#ccc);}
+    .rank-3{background:linear-gradient(90deg,#c96a1e,#e8a96a);}
+    .rank-n{background:linear-gradient(90deg,#2a2a3a,#3a3a4a);}
+    .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+    .kpi-card{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:14px;}
+    .kpi-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+    .kpi-val{font-size:18px;font-weight:700;color:var(--gold);font-family:var(--fd);}
+    .kpi-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+    .trend-up{color:var(--green)!important;}
+    .trend-dn{color:var(--red)!important;}
+    .import-zone{border:2px dashed var(--border2);border-radius:10px;padding:40px 20px;text-align:center;cursor:pointer;transition:border-color .2s;}
+    .import-zone:hover,.import-zone.drag{border-color:var(--gold);background:#f5a62308;}
+    .import-zone input{display:none;}
+    .dev-pill{display:inline-block;padding:2px 6px;background:#f5a62322;border:1px solid #f5a62355;border-radius:3px;font-size:8px;letter-spacing:1px;color:var(--gold);text-transform:uppercase;margin-left:6px;vertical-align:middle;}
+    .notice{padding:10px 14px;border-radius:6px;font-size:11px;margin-bottom:14px;}
+    .save-toast{position:fixed;bottom:calc(var(--nh)+12px);left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:11px;font-weight:700;letter-spacing:2px;padding:8px 20px;border-radius:99px;z-index:300;animation:toastIn .2s ease,toastOut .3s ease 1.5s forwards;pointer-events:none;}
+    @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+    @keyframes toastOut{from{opacity:1;}to{opacity:0;}}
+    .notice-ok{background:#22c55e11;border:1px solid #22c55e33;color:var(--green);}
+    .notice-err{background:#ef444411;border:1px solid #ef444433;color:var(--red);}
+    .notice-warn{background:#f5a62311;border:1px solid #f5a62333;color:var(--gold);}
+    .empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
+    .empty-ico{font-size:40px;margin-bottom:12px;}
+    .loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;background:var(--bg);}
+    .spinner{width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .fade-in{animation:fadeIn .2s ease;}
+    @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+    @media(max-width:768px){
+      .sidebar{display:none;}
+      .bottom-nav{display:block;}
+      .content{padding:12px 12px calc(var(--nh) + 16px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+      .topbar{padding:0 12px;height:52px;}
+      .stats-grid{grid-template-columns:1fr 1fr;gap:7px;}
+      .stat-val{font-size:16px;} .stat-card{padding:11px;}
+      .kpi-grid{grid-template-columns:1fr 1fr;}
+      .modal-grid{grid-template-columns:1fr;}
+      .topbar-title{font-size:13px;}
+      .hide-mob{display:none!important;}
+      .report-tab{font-size:9px;padding:10px 3px;}
+      .period-sel{font-size:16px;padding:14px 10px;min-width:140px;border-radius:8px;}
+      .wk-inp{font-size:16px;padding:10px 4px;} /* 16px prevents iOS zoom */
+      .wk-box label{font-size:9px;}
+      .bn-item{font-size:8px;gap:4px;}
+    }
+    @media(max-width:420px){
+      .wks-grid{gap:3px;}
+      /* wk-inp stays at 16px — never go below or iOS will zoom in */
+      .kpi-grid{grid-template-columns:1fr 1fr;}
+      .stat-val{font-size:14px;}
+    }
+  </style>
+</head>
+<body>
+<div id="root"><div class="loading"><div class="spinner"></div><div style="font-size:10px;letter-spacing:3px;color:var(--text3)">LOADING…</div></div></div>
+
+<!-- ═══════════════════════════════════════
+     PWA SETUP — Manifest + Icons + Service Worker
+     ═══════════════════════════════════════════ -->
+<script>
+(function(){
+  // ── 1. Generate app icon using Canvas ──────────────────────
+  // Vehicle icon map — matches VEHICLE_TYPES ids
+  const VEHICLE_ICONS = {
+    pragya: '🛺', taxi: '🚕', bolt: '🚗', uber: '🚗',
+    okada: '🏍️', trotro: '🚌', other: '🚙'
+  };
+
+  // Read saved vehicle type from localStorage session
+  function getSavedVehicleIcon() {
+    try {
+      const s = localStorage.getItem('pg-session');
+      if (s) {
+        const sess = JSON.parse(s);
+        return VEHICLE_ICONS[sess.vehicleType] || '🚗';
+      }
+    } catch(e) {}
+    return '🚗';
+  }
+
+  function makeIcon(size, emoji) {
+    const icon = emoji || getSavedVehicleIcon();
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    // Dark background
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, size, size);
+    // Gold circle
+    ctx.fillStyle = '#f5a623';
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.44, 0, Math.PI*2);
+    ctx.fill();
+    // Inner dark circle for contrast
+    ctx.fillStyle = '#0a0a0f';
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size*0.36, 0, Math.PI*2);
+    ctx.fill();
+    // Vehicle emoji
+    ctx.font = `${size*0.36}px Arial`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(icon, size/2, size/2 + size*0.03);
+    return c.toDataURL('image/png');
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+
+  // Set apple touch icon and favicon from generated canvas
+  document.getElementById('apple-icon').href = icon192;
+  document.getElementById('favicon-icon').href = icon192;
+
+  // Expose so React can update icon after login
+  window.__updatePWAIcon = function(vehicleType) {
+    const emoji = VEHICLE_ICONS[vehicleType] || '🚗';
+    const i192 = makeIcon(192, emoji);
+    const i512 = makeIcon(512, emoji);
+    document.getElementById('apple-icon').href = i192;
+    // Rebuild manifest with new icon
+    const manifest = {
+      name: 'FleetSales', short_name: 'FleetSales',
+      description: 'FleetSales — Business Sales Management System',
+      start_url: '/', scope: '/', display: 'standalone',
+      orientation: 'portrait-primary',
+      background_color: '#0a0a0f', theme_color: '#0a0a0f',
+      categories: ['business', 'finance'],
+      icons: [
+        { src: i192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+        { src: i512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ]
+    };
+    document.getElementById('pwa-manifest').href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+  };
+
+  // ── 2. Inject Web App Manifest ─────────────────────────────
+  const manifest = {
+    name: 'FleetSales',
+    short_name: 'FleetSales',
+    description: 'FleetSales — Business Sales Management System for Taxi, Bolt, Uber, Okada, Pragya & more',
+    start_url: '/',
+    scope: '/',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#0a0a0f',
+    theme_color: '#0a0a0f',
+    categories: ['business', 'finance'],
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+  // Use data: URI — blob: URLs for manifests are blocked by browsers
+  const manifestData = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+  document.getElementById('pwa-manifest').href = manifestData;
+
+  // ── 3. Service Worker ────────────────────────────────────────
+  // Note: blob: SW URLs are blocked by browsers — skip on GitHub Pages hosting
+  // The app works fully without a SW; Firebase handles offline data sync
+  console.log('[FleetSales] PWA ready — running on', location.hostname);
+
+  // ── 4. Install prompt (Android Chrome) ────────────────────
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Expose globally so React can trigger it
+    window.__pwaPrompt = () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(() => { deferredPrompt = null; window.__pwaPrompt = null; });
+    };
+    // Dispatch event so React component can show install button
+    window.dispatchEvent(new Event('pwa-installable'));
+  });
+  window.addEventListener('appinstalled', () => {
+    window.__pwaPrompt = null;
+    window.dispatchEvent(new Event('pwa-installed'));
+  });
+})();
+</script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<!-- Paystack -->
+<!-- React + Babel + SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- ══════════════════════════════════════════════
+     STEP 1: PASTE YOUR FIREBASE CONFIG BELOW
+     Get it from https://console.firebase.google.com
+     Project Settings > Your apps > SDK setup > Config
+     ══════════════════════════════════════════════ -->
+<script>
+// Firebase web API keys are public by design — security comes from Firestore Rules
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyBJAUFdYgsDt7jSI4m74SK8W6uHJWIOTvM",
+  authDomain:        "pragya-manager.firebaseapp.com",
+  projectId:         "pragya-manager",
+  storageBucket:     "pragya-manager.firebasestorage.app",
+  messagingSenderId: "1014139558240",
+  appId:             "1:1014139558240:web:5a37dabe4dad2ed5c02605"
+};
+
+const FIREBASE_CONFIGURED = true;
+
+let db = null;
+if (FIREBASE_CONFIGURED) {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  } catch(e) { console.warn("Firebase init failed:", e); }
+}
+</script>
+
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback}=React;
+
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const CY=new Date().getFullYear();
+const YEARS=Array.from({length:7},(_,i)=>(CY-3+i).toString());
+const DCOLORS=["BLACK","GREEN","RED","YELLOW","BLUE","ORANGE","WHITE","PURPLE"];
+
+// ── Vehicle types — each user picks one at signup ─────────────
+const VEHICLE_TYPES=[
+  {id:"pragya",  label:"Pragya (Tuk-Tuk)", icon:"🛺", regEx:"M-25-AP 000",  colorLabel:"Pragya Color"},
+  {id:"taxi",    label:"Taxi",              icon:"🚕", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"bolt",    label:"Bolt",              icon:"🚗", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"uber",    label:"Uber",              icon:"🚗", regEx:"GT-1234-24",   colorLabel:"Car Color"},
+  {id:"okada",   label:"Okada (Motorbike)", icon:"🏍️", regEx:"M-1234",       colorLabel:"Bike Color"},
+  {id:"trotro",  label:"Trotro / Minibus",  icon:"🚌", regEx:"GT-1234-24",   colorLabel:"Bus Color"},
+  {id:"other",   label:"Other Vehicle",     icon:"🚙", regEx:"REG-0000",     colorLabel:"Vehicle Color"},
+];
+function getVehicle(id){ return VEHICLE_TYPES.find(v=>v.id===id)||VEHICLE_TYPES[6]; }
+
+// ── Subscription Plans ────────────────────────────────────────
+const PLANS={
+  basic:  {id:"basic",  name:"Basic",   price:3000,  priceLabel:"GH₵ 30/mo",  drivers:3,  color:"#3b82f6"},
+  standard:{id:"standard",name:"Standard",price:6000,priceLabel:"GH₵ 60/mo",  drivers:10, color:"#f5a623"},
+  premium:{id:"premium",name:"Premium", price:12000, priceLabel:"GH₵ 120/mo", drivers:999,color:"#22c55e"},
+};
+const TRIAL_DAYS=7;
+
+// ── Subscription helpers ──────────────────────────────────────
+function subKey(u){return `pg-sub-${u}`;}
+function getSub(u){return lsGet(subKey(u));}
+function setSub(u,data){lsSet(subKey(u),data);}
+
+function subStatus(u){
+  // Dev account is always unlimited — never expires, never trial
+  if(u===DEV_U) return{active:true,trial:false,expired:false,plan:"premium",unlimited:true};
+  const s=getSub(u);
+  if(!s)return{active:false,trial:false,expired:true,plan:null};
+  const now=Date.now();
+  if(s.trialEnd && now<s.trialEnd && !s.paid) return{active:true,trial:true,expired:false,plan:s.plan,trialEnd:s.trialEnd,daysLeft:Math.ceil((s.trialEnd-now)/86400000)};
+  if(s.paid && s.paidUntil && now<s.paidUntil) return{active:true,trial:false,expired:false,plan:s.plan,paidUntil:s.paidUntil};
+  return{active:false,trial:false,expired:true,plan:s.plan};
+}
+
+function startTrial(u,plan){
+  const existing=getSub(u);
+  if(existing&&(existing.paid||existing.trialEnd))return; // already has sub or trial
+  setSub(u,{plan,trialEnd:Date.now()+TRIAL_DAYS*86400000,paid:false,created:Date.now()});
+}
+
+const CHEX={BLACK:"#94a3b8",GREEN:"#22c55e",RED:"#ef4444",YELLOW:"#eab308",BLUE:"#3b82f6",ORANGE:"#f97316",WHITE:"#e2e8f0",PURPLE:"#a855f7"};
+const DEV_U="amisco4u2", DEV_P="Amiena702$";
+
+const DEV_DRV=[
+  {id:1,color:"BLACK", name:"PHILIP", tel:"0557047868",tracker:"0248732636",reg:"M-25-AP 691",workAndPay:false,wapAmount:0},
+  {id:2,color:"GREEN", name:"DOSTY",  tel:"0552396523",tracker:"0546918078",reg:"M-25-AP 784",workAndPay:false,wapAmount:0},
+  {id:3,color:"RED",   name:"WANOA",  tel:"0599061621",tracker:"0593519442",reg:"M-25-AP 841",workAndPay:false,wapAmount:0},
+  {id:4,color:"YELLOW",name:"KUSI",   tel:"0549355708",tracker:"0557333257",reg:"M-25-AP 785",workAndPay:false,wapAmount:0},
+  {id:5,color:"BLUE",  name:"BENARD", tel:"0541120100",tracker:"0557105945",reg:"M-25-AP 859",workAndPay:false,wapAmount:0},
+  {id:6,color:"GREEN", name:"TANKO",  tel:"0247738761",tracker:"0543657738",reg:"M-25-AP 794",workAndPay:true, wapAmount:88000},
+];
+const DEV_SALES={
+  1:{"2025":{September:{1:900,2:800,3:900,4:900,5:900},October:{1:900,2:900,3:900,4:900},November:{1:900,2:900,3:900,4:900},December:{1:900,2:900,3:900,4:900,5:900}}},
+  2:{"2025":{September:{1:750,2:900,3:900,4:900,5:900},October:{1:900,2:900,3:900,4:900},November:{1:900,2:900,3:900,4:900},December:{1:900,2:750,3:900,4:900,5:900}}},
+  3:{"2025":{September:{1:900,2:900,3:900,4:900,5:900},October:{1:900,2:900,3:900,4:900},November:{1:900,2:900,3:900,4:900},December:{1:900,2:600,3:900,4:750,5:900}}},
+  4:{"2025":{September:{1:900,2:900,3:900,4:1000,5:1200},October:{1:900,2:900,3:600,4:900},November:{1:900,2:500,3:900,4:900},December:{1:900,2:900,3:0,4:900,5:900}}},
+  5:{"2025":{September:{1:900,2:900,3:900,4:900,5:900},October:{1:900,2:900,3:900,4:900},November:{1:900,2:900,3:900,4:900},December:{1:750,2:900,3:900,4:900,5:900}}},
+};
+const DEV_WAP={
+  6:{"2025":{September:{1:1400,2:1200,3:1000,4:1200,5:1200},October:{1:1200,2:1200,3:1200,4:600},November:{1:1200,2:1200,3:1200,4:1200},December:{1:1200,2:1200,3:1200,4:1200,5:1200}}},
+};
+
+// ── Helpers ──────────────────────────────────────────────────
+const fmt=n=>`GH₵ ${Number(n||0).toLocaleString()}`;
+const sumO=o=>Object.values(o||{}).reduce((a,b)=>a+(Number(b)||0),0);
+const pct=(v,mx)=>mx>0?Math.min(100,(v/mx)*100):0;
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h.toString(36);}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function lsGet(k){try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;}}
+
+// ── Cloud DB layer ────────────────────────────────────────────
+// All reads/writes go through here. Falls back to localStorage if Firebase not set up.
+async function dbGet(userKey, field) {
+  if (db) {
+    try {
+      const doc = await db.collection("users").doc(userKey).get();
+      if (doc.exists) {
+        const data = doc.data();
+        if (data[field] !== undefined) return data[field];
+      }
+    } catch(e) {}
+  }
+  return lsGet(`${userKey}-${field}`);
+}
+
+async function dbSet(userKey, field, value) {
+  // Write to Firestore first — this is the source of truth
+  if (db) {
+    try {
+      await db.collection("users").doc(userKey).set({ [field]: value }, { merge: true });
+      // Also cache locally as backup
+      lsSet(`${userKey}-${field}`, value);
+      return;
+    } catch(e) { console.warn("Firestore write failed:", e); }
+  }
+  // Fallback: localStorage only
+  lsSet(`${userKey}-${field}`, value);
+}
+
+// Users registry
+async function getUsers() {
+  if (db) {
+    try {
+      const doc = await db.collection("meta").doc("users").get();
+      if (doc.exists) return doc.data() || {};
+    } catch(e) {}
+  }
+  return lsGet("pg-users") || {};
+}
+async function setUsers(users) {
+  lsSet("pg-users", users);
+  if (db) {
+    try { await db.collection("meta").doc("users").set(users); } catch(e) {}
+  }
+}
+
+// Session (always local)
+function getSession() { return lsGet("pg-session"); }
+function setSession(s) { lsSet("pg-session", s); }
+
+// Debounce helper
+function useDebouncedCallback(fn, delay) {
+  const timer = useRef(null);
+  return useCallback((...args) => {
+    clearTimeout(timer.current);
+    timer.current = setTimeout(() => fn(...args), delay);
+  }, [fn, delay]);
+}
+
+// Bootstrap dev account into Firestore (runs once on app load)
+async function bootstrap() {
+  try {
+    const users = await getUsers();
+    if (!users[DEV_U]) {
+      users[DEV_U] = { hash: hashStr(DEV_P), business: "AMIN MOTORS & TRANSPORT", isDev: true, vehicleType: "pragya", created: 0 };
+      await setUsers(users);
+    }
+    // Check Firestore directly for dev drivers
+    if (db) {
+      const doc = await db.collection("users").doc(DEV_U).get();
+      if (!doc.exists || !doc.data().drivers || doc.data().drivers.length===0) {
+        await db.collection("users").doc(DEV_U).set({
+          drivers: DEV_DRV, sales: DEV_SALES, wap: DEV_WAP
+        }, { merge: true });
+      }
+    } else {
+      if (!lsGet(`${DEV_U}-drivers`) || lsGet(`${DEV_U}-drivers`).length===0) {
+        lsSet(`${DEV_U}-drivers`, DEV_DRV);
+        lsSet(`${DEV_U}-sales`, DEV_SALES);
+        lsSet(`${DEV_U}-wap`, DEV_WAP);
+      }
+    }
+  } catch(e) { console.warn("Bootstrap error:", e); }
+}
+
+// ── Icons ─────────────────────────────────────────────────────
+const PX={
+  dashboard:"M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zm0 7a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1h-4a1 1 0 01-1-1v-5zM4 13a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1v-2z",
+  drivers:"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
+  sales:"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+  wap:"M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
+  report:"M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
+  transfer:"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12",
+  plus:"M12 4v16m8-8H4",
+  edit:"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z",
+  trash:"M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16",
+  x:"M6 18L18 6M6 6l12 12",
+  logout:"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1",
+  eye:"M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z",
+  cal:"M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+  download:"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4",
+  upload:"M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12",
+  cloud:"M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z",
+};
+function Ic({name,size=16,color="currentColor"}){
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={PX[name]}/></svg>;
+}
+function CDot({color}){return <div style={{width:9,height:9,borderRadius:"50%",background:CHEX[color]||"#888",flexShrink:0}}/>;}
+function CBadge({color}){const h=CHEX[color]||"#888";return <span className="badge" style={{background:h+"22",color:color==="BLACK"?"#94a3b8":h,border:`1px solid ${h}44`}}>{color}</span>;}
+
+// ── Period Picker ─────────────────────────────────────────────
+function PeriodPicker({year,month,setYear,setMonth,label="PERIOD"}){
+  return(
+    <div className="period-bar">
+      <Ic name="cal" size={13} color="var(--gold)"/>
+      <span className="period-label">{label}</span>
+      <select className="period-sel" value={year} onChange={e=>setYear(e.target.value)}>
+        {YEARS.map(y=><option key={y}>{y}</option>)}
+      </select>
+      <select className="period-sel" value={month} onChange={e=>setMonth(e.target.value)}>
+        {MONTHS.map(m=><option key={m}>{m}</option>)}
+      </select>
+    </div>
+  );
+}
+
+// ── Setup Screen (shown when Firebase not configured) ─────────
+function SetupScreen(){
+  return(
+    <div className="setup-wrap fade-in">
+      <div style={{fontFamily:"var(--fd)",fontSize:28,fontWeight:800,color:"var(--gold)",marginBottom:4}}>🚗 FleetSales</div>
+      <div style={{fontSize:9,letterSpacing:3,color:"var(--text3)",marginBottom:6,textTransform:"uppercase"}}>Business Sales Management System</div>
+      <div style={{fontSize:10,letterSpacing:4,color:"var(--text3)",marginBottom:32,textTransform:"uppercase"}}>One-time Firebase Setup Required</div>
+      <div className="setup-card">
+        <div style={{fontFamily:"var(--fd)",fontSize:18,fontWeight:700,marginBottom:20,color:"var(--text)"}}>Connect Cloud Sync in 5 minutes</div>
+        <div className="setup-step">
+          <div className="step-num">1</div>
+          <div className="step-body">Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> and sign in with your Google account. Click <strong>Add project</strong>, name it anything (e.g. <strong>fleetsales-manager</strong>), skip Google Analytics, then click <strong>Create project</strong>.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">2</div>
+          <div className="step-body">Inside your project, click <strong>Build</strong> in the left menu then <strong>Firestore Database</strong>. Click <strong>Create database</strong>, choose <strong>Production mode</strong>, pick any location, then click <strong>Enable</strong>.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">3</div>
+          <div className="step-body">In Firestore, click <strong>Rules</strong> tab. Replace the content with this and click <strong>Publish</strong>:<br/>
+            <code style={{display:"block",marginTop:8,background:"var(--bg)",padding:"10px 12px",borderRadius:6,fontSize:11,color:"var(--gold)",lineHeight:1.8}}>
+              {"rules_version = '2';"}<br/>
+              {"service cloud.firestore {"}<br/>
+              {"  match /databases/{database}/documents {"}<br/>
+              {"    match /{document=**} {"}<br/>
+              {"      allow read, write: if true;"}<br/>
+              {"    }"}<br/>
+              {"  }"}<br/>
+              {"}"}
+            </code>
+          </div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">4</div>
+          <div className="step-body">Go to <strong>Project Settings</strong> (gear icon). Scroll down to <strong>Your apps</strong>, click the <strong>web icon (&lt;/&gt;)</strong>, register your app, then copy the <strong>firebaseConfig</strong> values into your <code style={{color:"var(--gold)"}}>index.html</code>.</div>
+        </div>
+        <div className="setup-step">
+          <div className="step-num">5</div>
+          <div className="step-body">Push your updated <strong>index.html</strong> to GitHub. The app will automatically deploy to <strong style={{color:"var(--gold)"}}>fleetsales.web.app</strong> via GitHub Actions.</div>
+        </div>
+        <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:8,padding:"14px 16px",marginTop:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
+          <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for FleetSales.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ── OWNER CONFIG ─────────────────────────────────────────────
+const OWNER={
+  name:     "Amin Moro Mohammed",
+  mtn:      "0243911216",
+  telecel:  "0505027255",
+  whatsapp: ["0243911216","0505027255"], // both on WhatsApp
+};
+
+// ── Subscription Wall — MoMo manual payment ───────────────────
+function SubscriptionWall({username,onActivated}){
+  const [sel,setSel]=useState("standard");
+  const [step,setStep]=useState("plans"); // plans | instructions | pending | trial
+  const sub=subStatus(username);
+  const plan=PLANS[sel];
+
+  function doTrial(){
+    startTrial(username,sel);
+    setStep("trial");
+    setTimeout(()=>onActivated(),1200);
+  }
+  function doPay(){
+    // Save pending payment so owner can see it
+    const pending={username,plan:sel,amount:plan.price,requestedAt:Date.now(),status:"pending"};
+    lsSet(`pg-pending-${username}`,pending);
+    if(db) db.collection("pending_payments").doc(username).set(pending);
+    setStep("instructions");
+  }
+  function checkActivation(){
+    // Re-check if owner has activated them
+    const s=subStatus(username);
+    if(s.active) onActivated();
+    else alert("Not activated yet. Send your MoMo reference to the WhatsApp number shown and wait for activation.");
+  }
+
+  return(
+    <div className="auth-wrap fade-in" style={{padding:"20px 16px"}}>
+      <div className="auth-logo">{tab==="signup"?(VEHICLE_TYPES.find(v=>v.id===f.vehicleType)||VEHICLE_TYPES[0]).icon:"🚗"} FleetSales</div>
+      <div className="auth-tagline" style={{fontSize:10,letterSpacing:3}}>BUSINESS SALES MANAGEMENT SYSTEM</div>
+
+      {/* Expired notice */}
+      {sub.expired&&sub.plan&&(
+        <div style={{background:"#ef444411",border:"1px solid #ef444433",borderRadius:8,padding:"10px 16px",marginBottom:16,fontSize:11,color:"var(--red)",textAlign:"center",width:"100%",maxWidth:460}}>
+          Your {sub.trial?"free trial":"subscription"} has expired.
+        </div>
+      )}
+
+      {/* ── STEP 1: Choose plan ── */}
+      {step==="plans"&&(
+        <div style={{width:"100%",maxWidth:460}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:16}}>
+            {Object.values(PLANS).map(p=>(
+              <div key={p.id} onClick={()=>setSel(p.id)} style={{cursor:"pointer",background:sel===p.id?"var(--bg2)":"var(--bg)",border:`2px solid ${sel===p.id?p.color:"var(--border)"}`,borderRadius:10,padding:"14px 10px",textAlign:"center",transition:"all .2s"}}>
+                <div style={{fontSize:10,letterSpacing:2,color:sel===p.id?p.color:"var(--text3)",textTransform:"uppercase",marginBottom:5}}>{p.name}</div>
+                <div style={{fontSize:18,fontWeight:800,color:sel===p.id?p.color:"var(--text)",fontFamily:"var(--fd)",marginBottom:3}}>{p.priceLabel}</div>
+                <div style={{fontSize:10,color:"var(--text3)"}}>{p.drivers===999?"Unlimited":p.drivers} drivers</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <button className="btn-outline" style={{padding:"13px",justifyContent:"center",fontSize:11}} onClick={doTrial}>
+              🎁 Free Trial (7 days)
+            </button>
+            <button className="btn" style={{padding:"13px",justifyContent:"center",fontSize:11}} onClick={doPay}>
+              📱 Pay via MoMo
+            </button>
+          </div>
+          <div style={{marginTop:20,fontSize:10,color:"var(--text3)",textAlign:"center"}}>
+            Signed in as <span style={{color:"var(--gold)"}}>{username}</span> ·
+            <span style={{color:"var(--red)",cursor:"pointer",marginLeft:6}} onClick={()=>{lsSet("pg-session",null);window.location.reload();}}>Sign out</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 2: MoMo payment instructions ── */}
+      {step==="instructions"&&(
+        <div style={{width:"100%",maxWidth:460}}>
+          <div style={{background:"var(--bg2)",border:"1px solid var(--gold)",borderRadius:12,padding:"20px",marginBottom:16}}>
+            <div style={{fontSize:11,letterSpacing:2,color:"var(--text3)",marginBottom:12,textTransform:"uppercase"}}>Payment Instructions</div>
+
+            {/* Amount box */}
+            <div style={{background:"var(--bg)",borderRadius:8,padding:"14px",marginBottom:14,textAlign:"center"}}>
+              <div style={{fontSize:11,color:"var(--text3)",marginBottom:4}}>Amount to Send</div>
+              <div style={{fontSize:28,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)"}}>{plan.priceLabel.replace("/mo","")}</div>
+              <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>for {plan.name} Plan · 30 days</div>
+            </div>
+
+            {/* Steps */}
+            {[
+              "Choose MTN or Telecel below and open that MoMo app",
+              `Send ${plan.priceLabel.replace("/mo","")} to the number shown`,
+              "Copy the transaction reference/ID after sending",
+              `WhatsApp the reference + your username "${username}" to either number`,
+              "Tap the button below — you'll be activated within minutes"
+            ].map((s,i)=>(
+              <div key={i} style={{display:"flex",gap:12,marginBottom:10,alignItems:"flex-start"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",background:"var(--gold)",color:"#0a0a0f",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{i+1}</div>
+                <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,paddingTop:2}}>{s}</div>
+              </div>
+            ))}
+
+            {/* Both MoMo numbers */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
+              <div style={{background:"#f59e0b22",border:"1px solid #f59e0b44",borderRadius:8,padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#f59e0b",marginBottom:4,fontWeight:700}}>MTN MOMO</div>
+                <div style={{fontSize:19,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)",letterSpacing:1}}>{OWNER.mtn}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+              <div style={{background:"#ef444422",border:"1px solid #ef444444",borderRadius:8,padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#ef4444",marginBottom:4,fontWeight:700}}>TELECEL</div>
+                <div style={{fontSize:19,fontWeight:800,color:"#ef4444",fontFamily:"var(--fd)",letterSpacing:1}}>{OWNER.telecel}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+            </div>
+            <div style={{textAlign:"center",marginTop:8,fontSize:10,color:"var(--text3)"}}>
+              💬 WhatsApp either number with your reference
+            </div>
+          </div>
+
+          <button className="btn" style={{width:"100%",padding:"14px",justifyContent:"center",fontSize:12,marginBottom:10}} onClick={checkActivation}>
+            ✓ I've Paid — Check Activation
+          </button>
+          <button className="btn-outline" style={{width:"100%",padding:"12px",justifyContent:"center",fontSize:11}} onClick={()=>setStep("plans")}>
+            ← Back to Plans
+          </button>
+          <div style={{marginTop:14,fontSize:10,color:"var(--text3)",textAlign:"center"}}>
+            Signed in as <span style={{color:"var(--gold)"}}>{username}</span> ·
+            <span style={{color:"var(--red)",cursor:"pointer",marginLeft:6}} onClick={()=>{lsSet("pg-session",null);window.location.reload();}}>Sign out</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: Trial started ── */}
+      {step==="trial"&&(
+        <div style={{textAlign:"center",padding:"20px"}}>
+          <div style={{fontSize:40,marginBottom:12}}>🎉</div>
+          <div style={{fontSize:16,fontWeight:700,color:"var(--green)",fontFamily:"var(--fd)",marginBottom:6}}>7-Day Free Trial Started!</div>
+          <div style={{fontSize:12,color:"var(--text3)"}}>Loading your dashboard…</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── AUTH ──────────────────────────────────────────────────────
+function Auth({onLogin}){
+  const [tab,setTab]=useState("signin");
+  const [f,setF]=useState({u:"",p:"",c:"",b:"",vehicleType:"pragya"});
+  const [err,setErr]=useState("");const [ok,setOk]=useState("");
+  const [busy,setBusy]=useState(false);const [showP,setShowP]=useState(false);
+  const sv=(k,v)=>setF(p=>({...p,[k]:v}));
+
+  async function doSignIn(){
+    setErr("");setBusy(true);
+    const users=await getUsers();
+    const ukey=f.u.toLowerCase().trim();
+    const usr=users[ukey];
+    if(!usr){setErr("Account not found. Please sign up.");setBusy(false);return;}
+    if(usr.hash!==hashStr(f.p)){setErr("Incorrect password.");setBusy(false);return;}
+    const sess={username:ukey,business:usr.business,isDev:!!usr.isDev,vehicleType:usr.vehicleType||"other"};
+    setSession(sess);onLogin(sess);setBusy(false);
+  }
+  async function doSignUp(){
+    setErr("");setBusy(true);
+    const ukey=f.u.toLowerCase().trim();
+    if(!ukey||!f.p||!f.b.trim()){setErr("All fields are required.");setBusy(false);return;}
+    if(ukey===DEV_U){setErr("That username is reserved.");setBusy(false);return;}
+    if(f.p.length<6){setErr("Password must be at least 6 characters.");setBusy(false);return;}
+    if(f.p!==f.c){setErr("Passwords do not match.");setBusy(false);return;}
+    const users=await getUsers();
+    if(users[ukey]){setErr("Username already taken.");setBusy(false);return;}
+    users[ukey]={hash:hashStr(f.p),business:f.b.trim(),isDev:false,vehicleType:f.vehicleType||"other",created:Date.now()};
+    await setUsers(users);
+    // Init new user data in Firestore directly
+    if(db){
+      await db.collection("users").doc(ukey).set({drivers:[],sales:{},wap:{}});
+    } else {
+      lsSet(`${ukey}-drivers`,[]);
+      lsSet(`${ukey}-sales`,{});
+      lsSet(`${ukey}-wap`,{});
+    }
+    setOk("Account created! Signing you in…");
+    setTimeout(()=>{
+      const sess={username:ukey,business:f.b.trim(),isDev:false,vehicleType:f.vehicleType||"other"};
+      setSession(sess);onLogin(sess);
+    },900);
+    setBusy(false);
+  }
+  return(
+    <div className="auth-wrap fade-in">
+      <div className="auth-logo">🚗 FleetSales</div>
+      <div className="auth-tagline" style={{fontSize:10,letterSpacing:3}}>BUSINESS SALES MANAGEMENT SYSTEM</div>
+      <div className="auth-card">
+        <div className="auth-tabs">
+          {[["signin","Sign In"],["signup","Sign Up"]].map(([t,l])=>(
+            <div key={t} className={`auth-tab${tab===t?" active":""}`} onClick={()=>{setTab(t);setErr("");setOk("");}}>
+              {l}
+            </div>
+          ))}
+        </div>
+        {err&&<div className="auth-err">⚠ {err}</div>}
+        {ok&&<div className="auth-ok">✓ {ok}</div>}
+        {tab==="signup"&&<>
+          <div className="field"><label>Business / Fleet Name</label><input placeholder="e.g. Kofi Transport, Bolt Accra" value={f.b} onChange={e=>sv("b",e.target.value)}/></div>
+          <div className="field" style={{gridColumn:"1/-1"}}>
+            <label>Vehicle Type</label>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7,marginTop:6}}>
+              {VEHICLE_TYPES.map(v=>(
+                <div key={v.id} onClick={()=>sv("vehicleType",v.id)}
+                  style={{cursor:"pointer",padding:"10px 6px",borderRadius:8,border:`2px solid ${f.vehicleType===v.id?"var(--gold)":"var(--border)"}`,background:f.vehicleType===v.id?"#f5a62311":"var(--bg)",textAlign:"center",transition:"all .15s"}}>
+                  <div style={{fontSize:22,marginBottom:4}}>{v.icon}</div>
+                  <div style={{fontSize:9,color:f.vehicleType===v.id?"var(--gold)":"var(--text3)",letterSpacing:1,lineHeight:1.3}}>{v.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>}
+        <div className="field"><label>Username</label><input placeholder="your username" value={f.u} onChange={e=>sv("u",e.target.value)} autoComplete="username"/></div>
+        <div className="field">
+          <label>Password</label>
+          <div style={{position:"relative"}}>
+            <input type={showP?"text":"password"} placeholder="••••••••" value={f.p} onChange={e=>sv("p",e.target.value)} style={{paddingRight:42}} autoComplete={tab==="signin"?"current-password":"new-password"}/>
+            <button onClick={()=>setShowP(p=>!p)} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:2}}><Ic name="eye" size={14}/></button>
+          </div>
+        </div>
+        {tab==="signup"&&<div className="field"><label>Confirm Password</label><input type="password" placeholder="••••••••" value={f.c} onChange={e=>sv("c",e.target.value)} autoComplete="new-password"/></div>}
+        <button className="auth-btn" onClick={tab==="signin"?doSignIn:doSignUp} disabled={busy}>
+          {busy?"Please wait…":tab==="signin"?"Sign In →":"Create Account →"}
+        </button>
+        {tab==="signin"&&<p style={{textAlign:"center",fontSize:10,color:"var(--text3)",marginTop:12}}>No account? <span style={{color:"var(--gold)",cursor:"pointer"}} onClick={()=>{setTab("signup");setErr("");}}>Sign up free</span></p>}
+        <div style={{marginTop:20,fontSize:9,color:"var(--text3)",letterSpacing:2,textAlign:"center",opacity:.5}}>FLEETSALES.WEB.APP</div>
+      </div>
+      <div style={{marginTop:16,display:"flex",alignItems:"center",gap:6,fontSize:10,color:db?"var(--green)":"var(--text3)"}}>
+        <Ic name="cloud" size={13} color={db?"var(--green)":"var(--text3)"}/>
+        {db?"Cloud sync active — data saves across all devices":"Offline mode — data saves on this device only"}
+      </div>
+    </div>
+  );
+}
+
+// ── ROOT ──────────────────────────────────────────────────────
+function App(){
+  const [sess,setSess]=useState(null);
+  const [ready,setReady]=useState(false);
+  const [setupDone]=useState(window.FIREBASE_CONFIGURED);
+
+  useEffect(()=>{
+    if(!FIREBASE_CONFIGURED){setReady(true);return;}
+    bootstrap().then(()=>{
+      const s=getSession();setSess(s);setReady(true);
+    });
+  },[]);
+
+  const login=u=>{
+    setSession(u);setSess(u);
+    if(!u.isDev && !getSub(u.username)) startTrial(u.username,"standard");
+    // Update PWA icon to match this account's vehicle type
+    if(window.__updatePWAIcon) window.__updatePWAIcon(u.vehicleType||'other');
+  };
+  const logout=()=>{setSession(null);setSess(null);};
+
+  // Firebase is configured — SetupScreen no longer needed
+  if(!ready)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING…</div></div>;
+  if(!sess)return<Auth onLogin={login}/>;
+  // Check subscription — DEV account always passes
+  const status=subStatus(sess.username);
+  if(!sess.isDev && !status.active){
+    return<SubscriptionWall username={sess.username} onActivated={()=>setSess({...sess})}/>;
+  }
+  return<Dashboard session={sess} subStatus={status} onLogout={logout}/>;
+}
+
+
+// ── Mobile Nav — shows all tabs + sign out in a slide-up menu ────────────
+function MobileNav({NAV,view,switchView,onLogout,session,syncState}){
+  const [menuOpen,setMenuOpen]=useState(false);
+
+  // Main tabs: first 4 always visible, then overflow into More
+  const mainNav=NAV.slice(0,4);
+  const overflowNav=NAV.slice(4); // reports, transfer, admin (if dev)
+
+  function goTo(id){ switchView(id); setMenuOpen(false); }
+
+  const syncColor={saving:"var(--gold)",saved:"var(--green)",error:"var(--red)"}[syncState]||"var(--text3)";
+  const syncLabel={saving:"Saving…",saved:"Saved ✓",error:"Sync Error"}[syncState]||"";
+  const vt=getVehicle(session.vehicleType);
+
+  return(
+    <>
+      {/* Slide-up overlay menu */}
+      {menuOpen&&(
+        <div style={{position:"fixed",inset:0,zIndex:199}} onClick={()=>setMenuOpen(false)}>
+          <div style={{position:"absolute",bottom:"calc(var(--nh) + env(safe-area-inset-bottom,0px))",left:0,right:0,background:"var(--bg2)",borderTop:"1px solid var(--border2)",borderRadius:"16px 16px 0 0",padding:"16px 12px 8px",boxShadow:"0 -8px 30px rgba(0,0,0,.6)"}}
+            onClick={e=>e.stopPropagation()}>
+
+            {/* Sync status */}
+            <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:14,paddingBottom:12,borderBottom:"1px solid var(--border)"}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:syncColor,flexShrink:0}}/>
+              <span style={{fontSize:10,letterSpacing:1,color:"var(--text3)",flex:1}}>{syncLabel}</span>
+              <span style={{fontSize:10,color:"var(--text3)"}}>@{session.username}</span>
+            </div>
+
+            {/* Overflow nav items */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
+              {overflowNav.map(n=>(
+                <button key={n.id} onClick={()=>goTo(n.id)} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,padding:"14px 8px",background:view===n.id?"#f5a62315":"var(--bg)",border:`1px solid ${view===n.id?"var(--gold)":"var(--border)"}`,borderRadius:10,cursor:"pointer",color:view===n.id?"var(--gold)":"var(--text2)",fontFamily:"var(--fm)",fontSize:9,letterSpacing:1,textTransform:"uppercase",WebkitTapHighlightColor:"transparent",touchAction:"manipulation"}}>
+                  <Ic name={n.icon} size={22} color={view===n.id?"var(--gold)":"var(--text2)"}/>
+                  {n.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Sign out */}
+            <button onClick={onLogout} style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"center",gap:8,padding:"13px",background:"#ef444411",border:"1px solid #ef444433",borderRadius:10,color:"var(--red)",fontFamily:"var(--fm)",fontSize:11,letterSpacing:2,textTransform:"uppercase",cursor:"pointer",WebkitTapHighlightColor:"transparent",touchAction:"manipulation"}}>
+              <Ic name="logout" size={14} color="var(--red)"/>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom nav bar */}
+      <nav className="bottom-nav">
+        <div className="bn-inner">
+          {mainNav.map(n=>(
+            <button key={n.id} className={`bn-item${view===n.id?" active":""}`} onClick={()=>switchView(n.id)}>
+              <Ic name={n.icon} size={20} color={view===n.id?"var(--gold)":"var(--text3)"}/>
+              {n.label}
+              {view===n.id&&<div className="bn-dot"/>}
+            </button>
+          ))}
+          {/* More button */}
+          <button className={`bn-item${menuOpen?" active":""}`} onClick={()=>setMenuOpen(o=>!o)}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={menuOpen?"var(--gold)":"var(--text3)"} strokeWidth="1.8" strokeLinecap="round">
+              <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+            </svg>
+            More
+            {menuOpen&&<div className="bn-dot"/>}
+          </button>
+        </div>
+      </nav>
+    </>
+  );
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function Dashboard({session,subStatus,onLogout}){
+  const u=session.username;
+  const [view,setView]=useState("dashboard");
+  const contentRef=useRef(null);
+  // Scroll to top whenever tab changes
+  const switchView=useCallback((v)=>{ setView(v); setTimeout(()=>{ if(contentRef.current) contentRef.current.scrollTop=0; },0); },[]);
+  const [drivers,setDrivers]=useState([]);
+  const [sales,setSales]=useState({});
+  const [wap,setWap]=useState({});
+  const [loaded,setLoaded]=useState(false);
+  const [modal,setModal]=useState(null);
+  const [selYear,setSelYear]=useState(CY.toString());
+  const [selMonth,setSelMonth]=useState(MONTHS[new Date().getMonth()]);
+  const [syncState,setSyncState]=useState("saved"); // saving | saved | error
+  const [importModal,setImportModal]=useState(false);
+  const [importMsg,setImportMsg]=useState(null);
+  const [toast,setToast]=useState(false);
+  const showToast=useCallback(()=>{ setToast(true); setTimeout(()=>setToast(false),1900); },[]);
+  const [installable,setInstallable]=useState(false);
+  const [showInstallBanner,setShowInstallBanner]=useState(false);
+  useEffect(()=>{
+    const onInstallable=()=>{ setInstallable(true); setShowInstallBanner(true); };
+    const onInstalled=()=>{ setInstallable(false); setShowInstallBanner(false); };
+    window.addEventListener('pwa-installable',onInstallable);
+    window.addEventListener('pwa-installed',onInstalled);
+    return()=>{ window.removeEventListener('pwa-installable',onInstallable); window.removeEventListener('pwa-installed',onInstalled); };
+  },[]);
+
+  // Single source of truth: onSnapshot handles BOTH initial load AND live updates
+  useEffect(()=>{
+    if(!db){
+      setDrivers(lsGet(`${u}-drivers`)||[]);
+      setSales(lsGet(`${u}-sales`)||{});
+      setWap(lsGet(`${u}-wap`)||{});
+      setLoaded(true);
+      return;
+    }
+    // Listen to Firestore — fires immediately on load AND on any device change
+    const unsub=db.collection("users").doc(u)
+      .onSnapshot(
+        {includeMetadataChanges:false}, // only real server changes, not local writes
+        doc=>{
+          if(doc.exists){
+            const data=doc.data();
+            if(data.drivers!==undefined) setDrivers(data.drivers||[]);
+            if(data.sales!==undefined)   setSales(data.sales||{});
+            if(data.wap!==undefined)     setWap(data.wap||{});
+          } else {
+            setDrivers([]); setSales({}); setWap({});
+          }
+          setLoaded(true);
+        },
+        err=>{
+          console.warn("Firestore error:",err);
+          setDrivers(lsGet(`${u}-drivers`)||[]);
+          setSales(lsGet(`${u}-sales`)||{});
+          setWap(lsGet(`${u}-wap`)||{});
+          setLoaded(true);
+        }
+      );
+
+    // Also listen to subscription changes (so admin activation reflects immediately)
+    const unsubSub=db.collection("subscriptions").doc(u)
+      .onSnapshot(doc=>{
+        if(doc.exists){
+          const data=doc.data();
+          // Merge into localStorage so subStatus() picks it up
+          const existing=getSub(u)||{};
+          setSub(u,{...existing,...data});
+        }
+      }, ()=>{});
+
+    return()=>{ unsub(); unsubSub(); };
+  },[u]);
+
+  // Auto-save functions — fire after debounce
+  const saveDrivers=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"drivers",val);setSyncState("saved"); }
+    catch(e){ setSyncState("error"); }
+  },[u]);
+  const saveSales=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"sales",val);setSyncState("saved");showToast(); }
+    catch(e){ setSyncState("error"); }
+  },[u,showToast]);
+  const saveWap=useCallback(async(val)=>{
+    setSyncState("saving");
+    try{ await dbSet(u,"wap",val);setSyncState("saved");showToast(); }
+    catch(e){ setSyncState("error"); }
+  },[u,showToast]);
+
+  const debouncedSaveDrivers=useDebouncedCallback(saveDrivers,1500);
+  const debouncedSaveSales=useDebouncedCallback(saveSales,1500);
+  const debouncedSaveWap=useDebouncedCallback(saveWap,1500);
+
+  const updSale=(did,yr,mo,wk,val)=>{
+    setSales(p=>{
+      const n={...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}};
+      debouncedSaveSales(n);return n;
+    });
+  };
+  const updWap=(did,yr,mo,wk,val)=>{
+    setWap(p=>{
+      const n={...p,[did]:{...(p[did]||{}),[yr]:{...((p[did]||{})[yr]||{}),[mo]:{...((p[did]||{})[yr]||{})[mo]||{},[wk]:Number(val)||0}}}};
+      debouncedSaveWap(n);return n;
+    });
+  };
+  const saveDrv=d=>{
+    const newList=d.id?drivers.map(x=>x.id===d.id?d:x):[...drivers,{...d,id:drivers.length?Math.max(...drivers.map(x=>x.id))+1:1}];
+    setDrivers(newList);debouncedSaveDrivers(newList);setModal(null);
+  };
+  const delDrv=id=>{
+    if(!window.confirm("Delete this driver and all their data?"))return;
+    const newList=drivers.filter(d=>d.id!==id);
+    setDrivers(newList);debouncedSaveDrivers(newList);
+    setSales(p=>{const n={...p};delete n[id];saveSales(n);return n;});
+    setWap(p=>{const n={...p};delete n[id];saveWap(n);return n;});
+  };
+
+  // Excel export
+  function doExport(){
+    const wb=XLSX.utils.book_new();
+    const dRows=[["#","NAME","COLOR","TEL","TRACKER","REG NO.","TYPE","W&P AMOUNT"]];
+    drivers.forEach((d,i)=>dRows.push([i+1,d.name,d.color,d.tel,d.tracker,d.reg,d.workAndPay?"WORK & PAY":"REGULAR",d.workAndPay?d.wapAmount:""]));
+    const ws1=XLSX.utils.aoa_to_sheet(dRows);
+    ws1["!cols"]=[{wch:4},{wch:14},{wch:9},{wch:14},{wch:14},{wch:14},{wch:12},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws1,"Drivers");
+    const regD=drivers.filter(d=>!d.workAndPay);
+    const allYears=[...new Set(Object.values(sales).flatMap(y=>Object.keys(y||{})))].sort();
+    const sRows=[["DRIVER","YEAR","MONTH","WEEK 1","WEEK 2","WEEK 3","WEEK 4","WEEK 5","MONTH TOTAL"]];
+    regD.forEach(d=>{allYears.forEach(yr=>{MONTHS.forEach(m=>{const wks=((sales[d.id]||{})[yr]||{})[m]||{};const tot=sumO(wks);if(!tot)return;sRows.push([d.name,yr,m,wks[1]||0,wks[2]||0,wks[3]||0,wks[4]||0,wks[5]||0,tot]);});});});
+    const ws2=XLSX.utils.aoa_to_sheet(sRows);
+    ws2["!cols"]=[{wch:14},{wch:6},{wch:11},{wch:8},{wch:8},{wch:8},{wch:8},{wch:8},{wch:12}];
+    XLSX.utils.book_append_sheet(wb,ws2,"Sales");
+    const wapD=drivers.filter(d=>d.workAndPay);
+    const wRows=[["DRIVER","YEAR","MONTH","WK1","WK2","WK3","WK4","WK5","MONTH PAID","CUMULATIVE PAID","REMAINING"]];
+    wapD.forEach(d=>{let cum=0;Object.keys(wap[d.id]||{}).sort().forEach(yr=>{MONTHS.forEach(m=>{const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);if(!mp)return;cum+=mp;wRows.push([d.name,yr,m,mw[1]||0,mw[2]||0,mw[3]||0,mw[4]||0,mw[5]||0,mp,cum,d.wapAmount-cum]);});});});
+    const ws3=XLSX.utils.aoa_to_sheet(wRows);
+    XLSX.utils.book_append_sheet(wb,ws3,"Work & Pay");
+    XLSX.writeFile(wb,`FleetSales_${session.business.replace(/\s+/g,"_")}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  }
+
+  // Excel import
+  function handleImport(file){
+    const reader=new FileReader();
+    reader.onload=async e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:"array"});
+        let msgs=[];let newDrvs=null;let newSales=null;let newWap=null;
+        if(wb.SheetNames.includes("Drivers")){
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets["Drivers"],{header:1}).slice(1);
+          newDrvs=rows.filter(r=>r[1]).map((r,i)=>({id:i+1,name:String(r[1]||"").toUpperCase(),color:String(r[2]||"BLACK").toUpperCase(),tel:String(r[3]||""),tracker:String(r[4]||""),reg:String(r[5]||""),workAndPay:String(r[6]||"").includes("WORK"),wapAmount:Number(r[7])||0}));
+          if(newDrvs.length)msgs.push(`${newDrvs.length} drivers`);
+        }
+        if(wb.SheetNames.includes("Sales")){
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets["Sales"],{header:1}).slice(1);
+          const dList=newDrvs||drivers;newSales={};
+          rows.forEach(r=>{if(!r[0]||!r[1]||!r[2])return;const dName=String(r[0]).toUpperCase().trim();const yr=String(r[1]).trim();const mo=String(r[2]).trim();if(!MONTHS.includes(mo))return;const drv=dList.find(d=>d.name===dName);if(!drv)return;if(!newSales[drv.id])newSales[drv.id]={};if(!newSales[drv.id][yr])newSales[drv.id][yr]={};newSales[drv.id][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};});
+          if(Object.keys(newSales).length)msgs.push("sales data");
+        }
+        if(wb.SheetNames.includes("Work & Pay")){
+          const rows=XLSX.utils.sheet_to_json(wb.Sheets["Work & Pay"],{header:1}).slice(1);
+          const dList=newDrvs||drivers;newWap={};
+          rows.forEach(r=>{if(!r[0]||!r[1]||!r[2])return;const dName=String(r[0]).toUpperCase().trim();const yr=String(r[1]).trim();const mo=String(r[2]).trim();if(!MONTHS.includes(mo))return;const drv=dList.find(d=>d.name===dName&&d.workAndPay);if(!drv)return;if(!newWap[drv.id])newWap[drv.id]={};if(!newWap[drv.id][yr])newWap[drv.id][yr]={};newWap[drv.id][yr][mo]={1:Number(r[3])||0,2:Number(r[4])||0,3:Number(r[5])||0,4:Number(r[6])||0,5:Number(r[7])||0};});
+          if(Object.keys(newWap).length)msgs.push("W&P payments");
+        }
+        if(!msgs.length){setImportMsg({type:"err",text:"No valid data found in file."});return;}
+        if(newDrvs){setDrivers(newDrvs);await dbSet(u,"drivers",newDrvs);}
+        if(newSales){setSales(newSales);await dbSet(u,"sales",newSales);}
+        if(newWap){setWap(newWap);await dbSet(u,"wap",newWap);}
+        setImportMsg({type:"ok",text:`Imported: ${msgs.join(", ")}`});
+        setTimeout(()=>{setImportModal(false);setImportMsg(null);},2000);
+      }catch(err){setImportMsg({type:"err",text:"Could not read file. Use a FleetSales export file."});}
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  const regD=drivers.filter(d=>!d.workAndPay);
+  const wapD=drivers.filter(d=>d.workAndPay);
+  const periodSales=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),0);
+  const yearSales=regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),0);
+  const totOwed=wapD.reduce((t,d)=>t+d.wapAmount,0);
+  const totWapPaid=Object.values(wap).reduce((t,yrs)=>t+Object.values(yrs||{}).reduce((yt,mos)=>yt+Object.values(mos||{}).reduce((mt,wks)=>mt+sumO(wks),0),0),0);
+  const wapBal=totOwed-totWapPaid;
+
+  const NAV=[
+    {id:"dashboard",label:"Home",icon:"dashboard"},
+    {id:"drivers",label:"Drivers",icon:"drivers"},
+    {id:"sales",label:"Sales",icon:"sales"},
+    {id:"workpay",label:"W&P",icon:"wap"},
+    {id:"reports",label:"Reports",icon:"report"},
+    {id:"transfer",label:"Data",icon:"transfer"},
+    ...(session.isDev?[{id:"admin",label:"Admin ⚙",icon:"drivers"}]:[]),
+  ];
+  const period={selYear,selMonth,setSelYear,setSelMonth};
+
+  const syncLabel={saving:"Saving…",saved:"Saved",error:"Sync error"}[syncState];
+
+  if(!loaded)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING DATA…</div></div>;
+
+  return(
+    <div className="app">
+      {/* Sync bar at very top */}
+      <div className={`sync-bar ${syncState}`}/>
+      {toast&&<div className="save-toast">✓ SAVED</div>}
+
+      <aside className="sidebar">
+        <div className="sb-logo">
+          {/* Vehicle icon — big and prominent */}
+          <div style={{fontSize:32,lineHeight:1,marginBottom:6}}>
+            {getVehicle(session?.vehicleType||"other").icon}
+          </div>
+          {/* Business name — this is their identity */}
+          <div className="sb-logo-main" style={{fontSize:14,lineHeight:1.3,wordBreak:"break-word"}}>
+            {session.business}
+          </div>
+          {/* Vehicle type + system label */}
+          <div className="sb-logo-sub" style={{marginTop:4}}>
+            <span style={{color:"var(--gold)",fontSize:8,letterSpacing:1}}>
+              {getVehicle(session.vehicleType).label}
+            </span>
+            {session.isDev&&<span className="dev-pill" style={{marginLeft:5}}>ADMIN</span>}
+          </div>
+          <div style={{fontSize:7,letterSpacing:2,color:"var(--text3)",marginTop:3,textTransform:"uppercase"}}>
+            FleetSales · Business Sales System
+          </div>
+        </div>
+        <nav style={{padding:"6px 0",flex:1}}>
+          {NAV.map(n=>(
+            <div key={n.id} className={`nav-item${view===n.id?" active":""}`} onClick={()=>switchView(n.id)}>
+              <Ic name={n.icon} size={13} color={view===n.id?"var(--gold)":"var(--text3)"}/>
+              {n.label}
+            </div>
+          ))}
+        </nav>
+        <div className="sb-footer">
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10}}>
+            <div className={`sync-dot ${syncState}`}/>
+            <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
+          </div>
+          {/* Subscription status */}
+          {subStatus&&<div style={{marginBottom:10,padding:"8px 10px",background:"var(--bg)",borderRadius:6,border:`1px solid ${subStatus.unlimited?"#22c55e44":subStatus.trial?"#f5a62344":subStatus.active?"#22c55e44":"#ef444444"}`}}>
+            <div style={{fontSize:8,letterSpacing:2,color:"var(--text3)",marginBottom:3}}>SUBSCRIPTION</div>
+            {subStatus.unlimited&&<div style={{fontSize:10,color:"var(--green)",fontWeight:700}}>Unlimited ∞</div>}
+            {!subStatus.unlimited&&subStatus.trial&&<div style={{fontSize:10,color:"var(--gold)",fontWeight:600}}>{subStatus.daysLeft}d free trial left</div>}
+            {!subStatus.unlimited&&subStatus.active&&!subStatus.trial&&<div style={{fontSize:10,color:"var(--green)",fontWeight:600}}>{PLANS[subStatus.plan]?.name} — Active</div>}
+            {!subStatus.unlimited&&!subStatus.active&&<div style={{fontSize:10,color:"var(--red)",fontWeight:600}}>Expired</div>}
+          </div>}
+          {installable&&<button className="btn" style={{width:"100%",marginBottom:10,fontSize:10,padding:"8px 12px"}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>
+            ⬇ Install App
+          </button>}
+          <div className="sb-user">@<span>{u}</span></div>
+          <button className="logout-btn" onClick={onLogout}><Ic name="logout" size={10}/> Sign Out</button>
+        </div>
+      </aside>
+
+      <div className="main">
+        <div className="topbar">
+          <div style={{display:"flex",alignItems:"center",gap:8,overflow:"hidden"}}>
+            <span style={{fontSize:20,flexShrink:0}}>{getVehicle(session?.vehicleType||"other").icon}</span>
+            <div style={{overflow:"hidden"}}>
+              <div className="topbar-title" style={{fontSize:11,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                {session.business||session.username}
+              </div>
+              <div style={{fontSize:8,color:"var(--text3)",letterSpacing:1,textTransform:"uppercase"}}>
+                {NAV.find(n=>n.id===view)?.label}
+              </div>
+            </div>
+          </div>
+          <div className="topbar-actions">
+            {/* Sync status */}
+            <div style={{display:"flex",alignItems:"center",gap:5}}>
+              <div className={`sync-dot ${syncState}`}/>
+              <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
+            </div>
+            {view==="drivers"&&<button className="btn" onClick={()=>setModal({type:"add"})}><Ic name="plus" size={12} color="#0a0a0f"/>Add</button>}
+            {view==="reports"&&<button className="btn" onClick={doExport}><Ic name="download" size={12} color="#0a0a0f"/>Export</button>}
+            {/* Sign out in sidebar on desktop only — mobile uses MobileNav More menu */}
+          </div>
+        </div>
+
+        {showInstallBanner&&<div style={{background:"linear-gradient(90deg,#1a1200,#0a0a0f)",borderBottom:"1px solid var(--gold)",padding:"10px 16px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,flexShrink:0}}>
+          <div>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>🚗 Install FleetSales</div>
+            <div style={{fontSize:10,color:"var(--text3)",marginTop:2}}>Add to home screen for app-like experience</div>
+          </div>
+          <div style={{display:"flex",gap:6,flexShrink:0}}>
+            <button className="btn" style={{padding:"7px 14px",fontSize:10}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>Install</button>
+            <button className="btn-outline" style={{padding:"7px 10px",fontSize:10}} onClick={()=>setShowInstallBanner(false)}>✕</button>
+          </div>
+        </div>}
+        <div className="content" ref={contentRef}>
+          <div key={view}>
+          {view==="dashboard"&&<VDash regD={regD} wapD={wapD} periodSales={periodSales} yearSales={yearSales} wapBal={wapBal} totOwed={totOwed} sales={sales} session={session} {...period}/>}
+          {view==="drivers"  &&<VDrivers drivers={drivers} vehicleType={session.vehicleType} setModal={setModal} delDrv={delDrv}/>}
+          {view==="sales"    &&<VSales regD={regD} sales={sales} updSale={updSale} {...period}/>}
+          {view==="workpay"  &&<VWap wapD={wapD} wap={wap} updWap={updWap} {...period}/>}
+          {view==="reports"  &&<VReports regD={regD} wapD={wapD} drivers={drivers} sales={sales} wap={wap} {...period} onExport={doExport}/>}
+          {view==="transfer" &&<VTransfer drivers={drivers} sales={sales} wap={wap} session={session} onExport={doExport} onImport={()=>setImportModal(true)}/>}
+          {view==="admin"    &&session.isDev&&<VAdmin/>}
+          </div>
+        </div>
+      </div>
+
+      <MobileNav NAV={NAV} view={view} switchView={switchView} onLogout={onLogout} session={session} syncState={syncState}/>
+
+      {modal&&<DrvModal driver={modal.data||null} vehicleType={session.vehicleType} onSave={saveDrv} onClose={()=>setModal(null)}/>}
+      {importModal&&<ImportModal onFile={handleImport} msg={importMsg} onClose={()=>{setImportModal(false);setImportMsg(null);}}/>}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════
+// VIEWS (Dashboard, Drivers, Sales, W&P, Reports, Transfer)
+// ══════════════════════════════════════════════════════
+
+// ── WeekInput — stable local state, syncs from cloud only when not focused ──
+function WeekInput({value, onChange}){
+  const [local,setLocal]=useState(String(value||""));
+  const focused=useRef(false);
+  const lastSaved=useRef(value);
+  // Accept remote updates only when not typing
+  useEffect(()=>{
+    if(!focused.current && value!==lastSaved.current){
+      setLocal(String(value===0?"":value||""));
+      lastSaved.current=value;
+    }
+  },[value]);
+  function commit(raw){
+    const n=Number(raw)||0;
+    lastSaved.current=n;
+    onChange(n);
+  }
+  return(
+    <input
+      type="text"
+      inputMode="numeric"
+      pattern="[0-9]*"
+      className="wk-inp"
+      value={local}
+      placeholder="0"
+      onChange={e=>setLocal(e.target.value)}
+      onFocus={e=>{ focused.current=true; e.target.select(); }}
+      onBlur={e=>{ focused.current=false; commit(e.target.value); }}
+      onKeyDown={e=>{ if(e.key==="Enter"||e.key==="Done"){ e.target.blur(); } }}
+    />
+  );
+}
+
+function VDash({regD,wapD,periodSales,yearSales,wapBal,totOwed,sales,session,selYear,selMonth,setSelYear,setSelMonth}){
+  const vt=getVehicle(session?.vehicleType||"other");
+  const maxP=regD.reduce((mx,d)=>Math.max(mx,sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})),1);
+  return(
+    <div>
+      <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="VIEWING"/>
+      <div className="stats-grid">
+        <div className="stat-card" style={{borderColor:"var(--gold)",borderWidth:1}}>
+          <div style={{fontSize:24,marginBottom:4}}>{getVehicle(session?.vehicleType||"other").icon}</div>
+          <div className="stat-label" style={{fontSize:9,color:"var(--gold)"}}>{session.business||session.username}</div>
+          <div className="stat-val" style={{fontSize:16}}>{regD.length+wapD.length}</div>
+          <div className="stat-sub">{regD.length} reg · {wapD.length} W&P</div>
+        </div>
+        <div className="stat-card"><div className="stat-label">{selMonth.slice(0,3)} {selYear}</div><div className="stat-val">{fmt(periodSales)}</div><div className="stat-sub">period sales</div></div>
+        <div className="stat-card"><div className="stat-label">{selYear} Total</div><div className="stat-val">{fmt(yearSales)}</div><div className="stat-sub">full year</div></div>
+        <div className="stat-card"><div className="stat-label">W&P Balance</div><div className="stat-val" style={{color:wapBal<=0?"var(--green)":"var(--gold)"}}>{fmt(wapBal)}</div><div className="stat-sub">of {fmt(totOwed)}</div></div>
+      </div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="sec-title">{selYear} — Monthly Totals</div>
+        <div style={{display:"flex",gap:7,overflowX:"auto",paddingBottom:4}}>
+          {MONTHS.map(m=>{
+            const t=regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);
+            if(!t&&m!==selMonth)return null;
+            const sel=m===selMonth;
+            return(
+              <div key={m} onClick={()=>setSelMonth(m)} style={{cursor:"pointer",background:sel?"var(--gold)":"var(--bg)",border:`1px solid ${sel?"var(--gold)":"var(--border)"}`,borderRadius:8,padding:"10px 14px",flexShrink:0,transition:"all .2s",minWidth:70}}>
+                <div style={{fontSize:8,letterSpacing:2,color:sel?"#0a0a0f":"var(--text3)",marginBottom:3}}>{m.slice(0,3).toUpperCase()}</div>
+                <div style={{fontSize:13,fontWeight:700,color:sel?"#0a0a0f":"var(--gold)",fontFamily:"var(--fd)"}}>{t>0?fmt(t):"—"}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      {regD.length===0
+        ?<div className="card empty-state"><div className="empty-ico">{vt.icon}</div><div style={{fontSize:12,letterSpacing:2}}>NO {vt.id==="okada"?"RIDERS":"DRIVERS"} YET</div></div>
+        :<div className="card">
+          <div className="sec-title">Leaderboard — {selMonth} {selYear}</div>
+          {[...regD].map(d=>({...d,total:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})})).sort((a,b)=>b.total-a.total).map((d,i)=>(
+            <div key={d.id} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 0",borderBottom:"1px solid var(--border)"}}>
+              <div style={{fontSize:11,color:"var(--text3)",width:16,textAlign:"center",fontWeight:700}}>{i+1}</div>
+              <CDot color={d.color}/>
+              <div style={{flex:1}}>
+                <div style={{fontSize:12,fontWeight:600,marginBottom:3}}>{d.name}</div>
+                <div className="prog-track"><div className="prog-fill" style={{width:`${pct(d.total,maxP)}%`}}/></div>
+              </div>
+              <div style={{fontSize:13,fontWeight:700,color:d.total>0?"var(--gold)":"var(--text3)",minWidth:88,textAlign:"right"}}>{fmt(d.total)}</div>
+            </div>
+          ))}
+        </div>
+      }
+    </div>
+  );
+}
+
+function VDrivers({drivers,vehicleType,setModal,delDrv}){
+  const vt=getVehicle(vehicleType||"other");
+  if(!drivers.length)return(
+    <div className="card empty-state">
+      <div className="empty-ico">👤</div><div style={{fontSize:12,letterSpacing:2}}>NO DRIVERS YET</div>
+      <div style={{fontSize:11,marginTop:8,marginBottom:18}}>Add your first {vt.label} driver</div>
+      <button className="btn" onClick={()=>setModal({type:"add"})}>+ Add First Driver</button>
+    </div>
+  );
+  return(
+    <div>
+      <div className="card hide-mob">
+        <div className="sec-title">All Drivers ({drivers.length})</div>
+        <div className="tbl-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Color</th><th>Name</th><th>Tel</th><th>Tracker</th><th>Reg No.</th><th>Type</th><th>W&P Amt</th><th></th></tr></thead>
+            <tbody>
+              {drivers.map((d,i)=>(
+                <tr key={d.id}>
+                  <td style={{color:"var(--text3)"}}>{i+1}</td><td><CBadge color={d.color}/></td>
+                  <td style={{fontWeight:600,color:"var(--text)"}}>{d.name}</td><td>{d.tel}</td>
+                  <td style={{color:"var(--text3)"}}>{d.tracker}</td><td style={{color:"var(--gold)",opacity:.8}}>{d.reg}</td>
+                  <td><span style={{fontSize:9,color:d.workAndPay?"var(--gold)":"var(--text3)"}}>{d.workAndPay?"WORK & PAY":"REGULAR"}</span></td>
+                  <td>{d.workAndPay?fmt(d.wapAmount):"—"}</td>
+                  <td><div style={{display:"flex",gap:5}}>
+                    <button className="btn-sm" onClick={()=>setModal({type:"edit",data:d})}>Edit</button>
+                    <button className="btn-danger" onClick={()=>delDrv(d.id)}>Del</button>
+                  </div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        {drivers.map(d=>(
+          <div key={d.id} className="drv-card">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span>{d.workAndPay&&<span style={{fontSize:8,color:"var(--gold)",background:"#f5a62322",padding:"2px 6px",borderRadius:3}}>W&P</span>}</div>
+                <div className="info-row"><span>📱 {d.tel}</span><span>🏷️ {d.reg}</span></div>
+                {d.workAndPay&&<div style={{fontSize:11,color:"var(--gold)",marginTop:3}}>Owed: {fmt(d.wapAmount)}</div>}
+              </div>
+              <div style={{display:"flex",gap:5,flexShrink:0}}>
+                <button className="btn-sm" onClick={()=>setModal({type:"edit",data:d})}><Ic name="edit" size={12}/></button>
+                <button className="btn-danger" onClick={()=>delDrv(d.id)}><Ic name="trash" size={12}/></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button className="btn" style={{marginTop:12,width:"100%"}} onClick={()=>setModal({type:"add"})}>+ Add New Driver</button>
+    </div>
+  );
+}
+
+function VSales({regD,sales,updSale,selYear,selMonth,setSelYear,setSelMonth}){
+  const total=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),0);
+  if(!regD.length)return<div className="card empty-state"><div className="empty-ico">📊</div><div style={{fontSize:12,letterSpacing:2}}>ADD DRIVERS FIRST</div></div>;
+  return(
+    <div>
+      <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="ENTERING SALES FOR"/>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,padding:"10px 16px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:8}}>
+        <div style={{fontSize:10,color:"var(--text3)",letterSpacing:2}}>EDIT ANY WEEK · GH₵</div>
+        <div style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{selMonth} {selYear}: {fmt(total)}</div>
+      </div>
+      {regD.map(d=>{
+        const wks=((sales[d.id]||{})[selYear]||{})[selMonth]||{};
+        const t=sumO(wks);
+        return(
+          <div key={d.id} className="sales-card">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}><CDot color={d.color}/><span style={{fontWeight:700,fontFamily:"var(--fd)"}}>{d.name}</span></div>
+              <div style={{fontSize:14,fontWeight:700,color:t>0?"var(--gold)":"var(--text3)"}}>{fmt(t)}</div>
+            </div>
+            <div className="wks-grid">
+              {[1,2,3,4,5].map(w=>(
+                <div key={w} className="wk-box">
+                  <label>Wk {w}</label>
+                  <WeekInput value={wks[w]} onChange={n=>updSale(d.id,selYear,selMonth,w,n)}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+      <div className="card" style={{marginTop:12}}>
+        <div className="sec-title">{selYear} — Year Overview</div>
+        <div className="tbl-wrap">
+          <table>
+            <thead><tr><th>Driver</th>{MONTHS.map(m=><th key={m} style={{textAlign:"center",fontSize:8}}>{m.slice(0,3)}</th>)}<th style={{textAlign:"right"}}>{selYear}</th></tr></thead>
+            <tbody>
+              {regD.map(d=>{
+                const yr=MONTHS.reduce((t,m)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);
+                return(
+                  <tr key={d.id}>
+                    <td style={{fontWeight:600,whiteSpace:"nowrap"}}>{d.name}</td>
+                    {MONTHS.map(m=>{const mt=sumO(((sales[d.id]||{})[selYear]||{})[m]||{});return<td key={m} style={{textAlign:"center",fontSize:11,color:m===selMonth?"var(--gold)":mt>0?"var(--text2)":"var(--text3)",background:m===selMonth?"#f5a62308":""}}>{mt>0?mt.toLocaleString():"—"}</td>;})}
+                    <td style={{textAlign:"right",fontWeight:700,color:yr>0?"var(--gold)":"var(--text3)",whiteSpace:"nowrap"}}>{yr>0?fmt(yr):"—"}</td>
+                  </tr>
+                );
+              })}
+              <tr>
+                <td style={{fontWeight:700,fontSize:11,color:"var(--text)"}}>TOTAL</td>
+                {MONTHS.map(m=>{const mt=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);return<td key={m} style={{textAlign:"center",fontSize:11,fontWeight:600,color:m===selMonth?"var(--gold)":mt>0?"var(--text)":"var(--text3)"}}>{mt>0?fmt(mt):"—"}</td>;})}
+                <td style={{textAlign:"right",fontWeight:700,color:"var(--gold)"}}>{fmt(regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),0))}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VWap({wapD,wap,updWap,selYear,selMonth,setSelYear,setSelMonth}){
+  if(!wapD.length)return<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO W&P DRIVERS</div><div style={{fontSize:11,marginTop:8}}>Add a driver and tick Work & Pay</div></div>;
+  return(
+    <div>
+      <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="PAYMENT PERIOD"/>
+      {wapD.map(d=>{
+        const totPaid=Object.values(wap[d.id]||{}).reduce((t,yrs)=>t+Object.values(yrs||{}).reduce((yt,wks)=>yt+sumO(wks),0),0);
+        const bal=d.wapAmount-totPaid;
+        const p=Math.min(100,d.wapAmount>0?(totPaid/d.wapAmount)*100:0);
+        const mWks=((wap[d.id]||{})[selYear]||{})[selMonth]||{};
+        return(
+          <div key={d.id} className="card" style={{marginBottom:12}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12,flexWrap:"wrap",gap:8}}>
+              <div>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:15}}>{d.name}</span></div>
+                <div style={{fontSize:11,color:"var(--text3)"}}>{d.reg} · {d.tel}</div>
+              </div>
+              <div style={{textAlign:"right"}}>
+                <div style={{fontSize:9,color:"var(--text3)",letterSpacing:2,marginBottom:3}}>REMAINING</div>
+                <div style={{fontSize:20,fontWeight:800,fontFamily:"var(--fd)",color:bal<=0?"var(--green)":"var(--gold)"}}>{fmt(bal)}</div>
+                <div style={{fontSize:10,color:"var(--text3)"}}>{fmt(totPaid)} paid of {fmt(d.wapAmount)}</div>
+              </div>
+            </div>
+            <div className="prog-track" style={{marginBottom:14}}><div className="prog-fill" style={{width:`${p}%`}}/></div>
+            <div className="sec-title">{selMonth} {selYear}</div>
+            <div className="wks-grid" style={{marginBottom:10}}>
+              {[1,2,3,4,5].map(w=>(
+                <div key={w} className="wk-box">
+                  <label>Wk {w}</label>
+                  <WeekInput value={mWks[w]} onChange={n=>updWap(d.id,selYear,selMonth,w,n)}/>
+                </div>
+              ))}
+            </div>
+            <div style={{textAlign:"right",fontSize:12,color:"var(--gold)",fontWeight:700,marginBottom:14}}>{selMonth} {selYear}: {fmt(sumO(mWks))}</div>
+            <div className="sec-title">Payment History</div>
+            <div className="tbl-wrap">
+              <table>
+                <thead><tr><th>Year</th><th>Month</th>{[1,2,3,4,5].map(w=><th key={w} style={{textAlign:"center"}}>Wk{w}</th>)}<th style={{textAlign:"right"}}>Paid</th><th style={{textAlign:"right"}}>Balance</th></tr></thead>
+                <tbody>
+                  {(()=>{let cum=0;const rows=[];
+                    Object.keys(wap[d.id]||{}).sort().forEach(yr=>{
+                      MONTHS.forEach(m=>{
+                        const mw=((wap[d.id]||{})[yr]||{})[m]||{};const mp=sumO(mw);
+                        if(!mp&&!(yr===selYear&&m===selMonth))return;
+                        cum+=mp;const cb=d.wapAmount-cum;const isSel=yr===selYear&&m===selMonth;
+                        rows.push(<tr key={yr+m} style={{background:isSel?"#f5a62308":""}}>
+                          <td style={{fontSize:11,color:isSel?"var(--gold)":"var(--text3)"}}>{yr}</td>
+                          <td style={{color:isSel?"var(--gold)":"var(--text2)",fontWeight:isSel?600:400,whiteSpace:"nowrap"}}>{m}</td>
+                          {[1,2,3,4,5].map(w=><td key={w} style={{textAlign:"center",fontSize:11,color:"var(--text3)"}}>{mw[w]||"—"}</td>)}
+                          <td style={{textAlign:"right",whiteSpace:"nowrap"}}>{mp>0?fmt(mp):"—"}</td>
+                          <td style={{textAlign:"right",fontWeight:600,color:cb<=0?"var(--green)":"var(--text2)",whiteSpace:"nowrap"}}>{fmt(cb)}</td>
+                        </tr>);
+                      });
+                    });
+                    return rows.length?rows:<tr><td colSpan="9" style={{textAlign:"center",color:"var(--text3)",padding:14,fontSize:11}}>No history yet</td></tr>;
+                  })()}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function VReports({regD,wapD,drivers,sales,wap,selYear,selMonth,setSelYear,setSelMonth,onExport}){
+  const [rTab,setRTab]=useState("monthly");
+  const allYears=[...new Set(Object.values(sales).flatMap(y=>Object.keys(y||{})))].sort().reverse();
+  const monthlyTotals=MONTHS.map(m=>({month:m,total:regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0)}));
+  const maxMth=Math.max(...monthlyTotals.map(x=>x.total),1);
+  const driverTotals=regD.map(d=>({...d,total:MONTHS.reduce((t,m)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0),monthTotal:sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{})})).sort((a,b)=>b.total-a.total);
+  const maxDrv=Math.max(...driverTotals.map(x=>x.total),1);
+  const yearTotal=monthlyTotals.reduce((t,x)=>t+x.total,0);
+  const activeMths=monthlyTotals.filter(x=>x.total>0).length;
+  const avgMth=activeMths?Math.round(yearTotal/activeMths):0;
+  const bestMth=monthlyTotals.reduce((b,x)=>x.total>b.total?x:b,{month:"—",total:0});
+  const bestDrv=driverTotals[0]||{name:"—",total:0};
+  const periodSales=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[selMonth]||{}),0);
+  const mIdx=MONTHS.indexOf(selMonth);
+  const prevMth=mIdx>0?MONTHS[mIdx-1]:null;
+  const prevMthTotal=prevMth?regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[prevMth]||{}),0):0;
+  const mthChange=prevMthTotal>0?((periodSales-prevMthTotal)/prevMthTotal*100).toFixed(1):null;
+  const wapSummary=wapD.map(d=>{const tp=Object.values(wap[d.id]||{}).reduce((t,y)=>t+Object.values(y||{}).reduce((yt,wks)=>yt+sumO(wks),0),0);return{...d,totPaid:tp,bal:d.wapAmount-tp,pct:d.wapAmount>0?Math.min(100,(tp/d.wapAmount)*100):0};});
+  const yoyRows=(allYears.length?allYears:[selYear]).slice(0,4).map(yr=>({yr,total:regD.reduce((t,d)=>t+MONTHS.reduce((mt,m)=>mt+sumO(((sales[d.id]||{})[yr]||{})[m]||{}),0),0)}));
+  const maxYoy=Math.max(...yoyRows.map(x=>x.total),1);
+  const RCLS=["rank-1","rank-2","rank-3","rank-n","rank-n","rank-n"];
+
+  return(
+    <div>
+      <PeriodPicker year={selYear} month={selMonth} setYear={setSelYear} setMonth={setSelMonth} label="REPORT PERIOD"/>
+      <div className="report-tabs">
+        {[["monthly","Monthly"],["drivers","Drivers"],["yoy","Year vs Year"],["wap","Work & Pay"]].map(([id,lbl])=>(
+          <button key={id} className={`report-tab${rTab===id?" active":""}`} onClick={()=>setRTab(id)}>{lbl}</button>
+        ))}
+      </div>
+
+      {rTab==="monthly"&&(
+        <div>
+          <div className="kpi-grid">
+            <div className="kpi-card"><div className="kpi-label">{selYear} Total</div><div className="kpi-val">{fmt(yearTotal)}</div><div className="kpi-sub">{activeMths} active months</div></div>
+            <div className="kpi-card"><div className="kpi-label">{selMonth} Sales</div><div className="kpi-val">{fmt(periodSales)}</div>{mthChange!==null&&<div className={`kpi-sub ${Number(mthChange)>=0?"trend-up":"trend-dn"}`}>{Number(mthChange)>=0?"▲":"▼"} {Math.abs(mthChange)}% vs {prevMth}</div>}</div>
+            <div className="kpi-card"><div className="kpi-label">Avg/Month</div><div className="kpi-val">{fmt(avgMth)}</div><div className="kpi-sub">best: {bestMth.month}</div></div>
+          </div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">{selYear} — Monthly Sales</div>
+            {monthlyTotals.filter(x=>x.total>0).length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No data for {selYear}.</div>
+              :monthlyTotals.map(x=>{if(!x.total)return null;const isSel=x.month===selMonth;return(
+                <div key={x.month} className="bar-row">
+                  <div className="bar-label" style={{color:isSel?"var(--gold)":"var(--text2)",fontWeight:isSel?700:400}}>{x.month.slice(0,3)}</div>
+                  <div className="bar-track"><div className={`bar-fill ${isSel?"rank-1":"rank-n"}`} style={{width:`${pct(x.total,maxMth)}%`}}><span style={{color:isSel?"#0a0a0f":"#aaa"}}>{fmt(x.total)}</span></div></div>
+                </div>
+              );})}
+          </div>
+          <div className="card">
+            <div className="sec-title">{selMonth} {selYear} — Driver Breakdown</div>
+            <div className="tbl-wrap">
+              <table>
+                <thead><tr><th>Driver</th>{[1,2,3,4,5].map(w=><th key={w} style={{textAlign:"center"}}>Wk{w}</th>)}<th style={{textAlign:"right"}}>Total</th><th style={{textAlign:"right"}}>Share</th></tr></thead>
+                <tbody>
+                  {regD.map(d=>{const wks=((sales[d.id]||{})[selYear]||{})[selMonth]||{};const t=sumO(wks);return(
+                    <tr key={d.id}><td style={{fontWeight:600}}><div style={{display:"flex",alignItems:"center",gap:6}}><CDot color={d.color}/>{d.name}</div></td>
+                    {[1,2,3,4,5].map(w=><td key={w} style={{textAlign:"center",fontSize:11,color:wks[w]>0?"var(--text2)":"var(--text3)"}}>{wks[w]||"—"}</td>)}
+                    <td style={{textAlign:"right",fontWeight:700,color:t>0?"var(--gold)":"var(--text3)"}}>{t>0?fmt(t):"—"}</td>
+                    <td style={{textAlign:"right",fontSize:11,color:"var(--text3)"}}>{periodSales>0?`${((t/periodSales)*100).toFixed(0)}%`:"—"}</td></tr>
+                  );})}
+                </tbody>
+                <tfoot><tr><td>TOTAL</td>{[1,2,3,4,5].map(w=>{const wt=regD.reduce((t,d)=>t+(Number(((sales[d.id]||{})[selYear]||{})[selMonth]||{})[w])||0,0);return<td key={w} style={{textAlign:"center"}}>{wt||"—"}</td>;})}<td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(periodSales)}</td><td style={{textAlign:"right"}}>100%</td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rTab==="drivers"&&(
+        <div>
+          <div className="kpi-grid">
+            <div className="kpi-card"><div className="kpi-label">Top Driver ({selYear})</div><div className="kpi-val" style={{fontSize:16}}>{bestDrv.name}</div><div className="kpi-sub">{fmt(bestDrv.total)}</div></div>
+            <div className="kpi-card"><div className="kpi-label">Total Drivers</div><div className="kpi-val">{regD.length}</div><div className="kpi-sub">{wapD.length} on W&P</div></div>
+            <div className="kpi-card"><div className="kpi-label">Avg/Driver ({selYear})</div><div className="kpi-val">{fmt(regD.length?Math.round(yearTotal/regD.length):0)}</div></div>
+          </div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">Driver Performance — {selYear}</div>
+            {driverTotals.length===0?<div style={{fontSize:11,color:"var(--text3)"}}>No drivers.</div>
+              :driverTotals.map((d,i)=>(
+              <div key={d.id} className="bar-row">
+                <div className="bar-label" style={{display:"flex",alignItems:"center",gap:5}}><CDot color={d.color}/><span style={{fontSize:11}}>{d.name}</span></div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]||"rank-n"}`} style={{width:`${pct(d.total,maxDrv)}%`}}>{d.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(d.total)}</span>}</div></div>
+                <div className="bar-val">{d.total>0?fmt(d.total):"—"}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div className="sec-title">Driver x Month — {selYear}</div>
+            <div className="tbl-wrap">
+              <table>
+                <thead><tr><th>Driver</th>{MONTHS.map(m=><th key={m} style={{textAlign:"center",fontSize:8}}>{m.slice(0,3)}</th>)}<th style={{textAlign:"right"}}>Total</th></tr></thead>
+                <tbody>
+                  {driverTotals.map(d=>(
+                    <tr key={d.id}>
+                      <td style={{fontWeight:600,whiteSpace:"nowrap"}}><div style={{display:"flex",alignItems:"center",gap:6}}><CDot color={d.color}/>{d.name}</div></td>
+                      {MONTHS.map(m=>{const mt=sumO(((sales[d.id]||{})[selYear]||{})[m]||{});return<td key={m} style={{textAlign:"center",fontSize:11,color:m===selMonth?"var(--gold)":mt>0?"var(--text2)":"var(--text3)",background:m===selMonth?"#f5a62308":""}}>{mt>0?mt.toLocaleString():"—"}</td>;})}
+                      <td style={{textAlign:"right",fontWeight:700,color:d.total>0?"var(--gold)":"var(--text3)"}}>{d.total>0?fmt(d.total):"—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot><tr><td>TOTAL</td>{MONTHS.map(m=>{const mt=regD.reduce((t,d)=>t+sumO(((sales[d.id]||{})[selYear]||{})[m]||{}),0);return<td key={m} style={{textAlign:"center",color:m===selMonth?"var(--gold)":mt>0?"var(--text)":"var(--text3)"}}>{mt>0?fmt(mt):"—"}</td>;})}<td style={{textAlign:"right",color:"var(--gold)"}}>{fmt(yearTotal)}</td></tr></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rTab==="yoy"&&(
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">Year-over-Year Total Sales</div>
+            {yoyRows.map((x,i)=>(
+              <div key={x.yr} className="bar-row">
+                <div className="bar-label" style={{fontWeight:x.yr===selYear?700:400,color:x.yr===selYear?"var(--gold)":"var(--text2)"}}>{x.yr}</div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]}`} style={{width:`${pct(x.total,maxYoy)}%`}}>{x.total>0&&<span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(x.total)}</span>}</div></div>
+                <div className="bar-val">{x.total>0?fmt(x.total):"—"}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div className="sec-title">{selMonth} — Across Years</div>
+            {(allYears.length?allYears:[selYear]).map((yr,i)=>{
+              const t=regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[yr]||{})[selMonth]||{}),0);
+              if(!t)return null;
+              const mx=Math.max(...(allYears.length?allYears:[selYear]).map(y=>regD.reduce((tt,d)=>tt+sumO(((sales[d.id]||{})[y]||{})[selMonth]||{}),0)),1);
+              return(<div key={yr} className="bar-row">
+                <div className="bar-label" style={{fontWeight:yr===selYear?700:400,color:yr===selYear?"var(--gold)":"var(--text2)"}}>{yr}</div>
+                <div className="bar-track"><div className={`bar-fill ${RCLS[i]}`} style={{width:`${pct(t,mx)}%`}}><span style={{color:i===0?"#0a0a0f":"#ccc"}}>{fmt(t)}</span></div></div>
+                <div className="bar-val">{fmt(t)}</div>
+              </div>);
+            })}
+          </div>
+        </div>
+      )}
+
+      {rTab==="wap"&&(
+        wapSummary.length===0?<div className="card empty-state"><div className="empty-ico">📋</div><div style={{fontSize:12,letterSpacing:2}}>NO W&P DRIVERS</div></div>
+        :<div>
+          <div className="kpi-grid">
+            <div className="kpi-card"><div className="kpi-label">Total Owed</div><div className="kpi-val">{fmt(wapSummary.reduce((t,d)=>t+d.wapAmount,0))}</div></div>
+            <div className="kpi-card"><div className="kpi-label">Total Paid</div><div className="kpi-val" style={{color:"var(--green)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.totPaid,0))}</div></div>
+            <div className="kpi-card"><div className="kpi-label">Remaining</div><div className="kpi-val" style={{color:"var(--red)"}}>{fmt(wapSummary.reduce((t,d)=>t+d.bal,0))}</div></div>
+          </div>
+          {wapSummary.map(d=>(
+            <div key={d.id} className="card" style={{marginBottom:12}}>
+              <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,marginBottom:10}}>
+                <div style={{display:"flex",alignItems:"center",gap:8}}><CDot color={d.color}/><span style={{fontFamily:"var(--fd)",fontWeight:700,fontSize:14}}>{d.name}</span></div>
+                <div style={{textAlign:"right"}}>
+                  <div style={{fontSize:18,fontWeight:800,color:d.bal<=0?"var(--green)":"var(--gold)",fontFamily:"var(--fd)"}}>{fmt(d.bal)} left</div>
+                  <div style={{fontSize:10,color:"var(--text3)"}}>{fmt(d.totPaid)} / {fmt(d.wapAmount)} · {d.pct.toFixed(0)}% complete</div>
+                </div>
+              </div>
+              <div className="prog-track" style={{marginBottom:10}}><div className="prog-fill" style={{width:`${d.pct}%`}}/></div>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {Object.keys(wap[d.id]||{}).sort().map(yr=>{const yp=Object.values((wap[d.id]||{})[yr]||{}).reduce((t,wks)=>t+sumO(wks),0);return<div key={yr} style={{background:"var(--bg)",borderRadius:6,padding:"10px 12px",border:"1px solid var(--border)",flex:1,minWidth:80}}>
+                  <div style={{fontSize:9,color:"var(--text3)",letterSpacing:2,marginBottom:3}}>{yr}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:"var(--gold)"}}>{fmt(yp)}</div>
+                </div>;})}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{marginTop:20,paddingTop:16,borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
+        <span style={{fontSize:10,color:"var(--text3)",letterSpacing:2}}>DOWNLOAD REPORT</span>
+        <button className="btn" onClick={onExport}><Ic name="download" size={13} color="#0a0a0f"/>Export to Excel</button>
+      </div>
+    </div>
+  );
+}
+
+function InstallGuide(){
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid=/Android/.test(navigator.userAgent);
+  const isInstalled=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+  if(isInstalled) return(
+    <div style={{background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:8,padding:"14px 16px",marginBottom:14,display:"flex",alignItems:"center",gap:10}}>
+      <span style={{fontSize:20}}>✅</span>
+      <div><div style={{fontSize:12,fontWeight:700,color:"var(--green)"}}>App is Installed</div><div style={{fontSize:11,color:"var(--text3)",marginTop:2}}>Running in standalone mode</div></div>
+    </div>
+  );
+  if(isAndroid) return(
+    <div style={{background:"#f5a62311",border:"1px solid #f5a62333",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--gold)",marginBottom:8}}>📱 Install on Android</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        Chrome will show an <strong style={{color:"var(--text)"}}>Install App</strong> banner or button automatically.<br/>
+        If you don't see it: tap the <strong style={{color:"var(--text)"}}>3-dot menu ⋮</strong> → <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
+        The app will install with its own icon, open fullscreen, and work like a native app.
+      </div>
+    </div>
+  );
+  if(isIOS) return(
+    <div style={{background:"#f5a62311",border:"1px solid #f5a62333",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--gold)",marginBottom:8}}>🍎 Install on iPhone/iPad</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        1. Tap the <strong style={{color:"var(--text)"}}>Share button</strong> <span style={{color:"var(--gold)"}}>⬆</span> at the bottom of Safari<br/>
+        2. Scroll down and tap <strong style={{color:"var(--text)"}}>Add to Home Screen</strong><br/>
+        3. Tap <strong style={{color:"var(--text)"}}>Add</strong> in the top right<br/>
+        The FleetSales icon will appear on your home screen — tap it to open like a normal app.
+      </div>
+    </div>
+  );
+  return(
+    <div style={{background:"#3b82f611",border:"1px solid #3b82f633",borderRadius:8,padding:"14px 16px",marginBottom:14}}>
+      <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:6}}>💻 Install on Desktop (Chrome/Edge)</div>
+      <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
+        Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install FleetSales</strong>.
+      </div>
+    </div>
+  );
+}
+
+// ── ADMIN PANEL (DEV account only) — activate users ──────────
+function VAdmin(){
+  const [users,setUsers]=useState({});
+  const [pending,setPending]=useState([]);
+  const [search,setSearch]=useState("");
+  const [msg,setMsg]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [aTab,setATab]=useState("overview"); // overview | users | payments | settings
+  const [customDays,setCustomDays]=useState(30);
+  const [expandUser,setExpandUser]=useState(null);
+
+  useEffect(()=>{
+    async function load(){
+      const u=await getUsers();
+      setUsers(u);
+      if(db){
+        const snap=await db.collection("pending_payments").get();
+        setPending(snap.docs.map(d=>({id:d.id,...d.data()})));
+      }
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  async function activate(username,plan,days){
+    const d=days||customDays||30;
+    const paidUntil=Date.now()+d*86400000;
+    const data={plan,paid:true,paidUntil,activatedAt:Date.now(),activatedBy:DEV_U};
+    setSub(username,data);
+    if(db){
+      await db.collection("subscriptions").doc(username).set(data);
+      await db.collection("pending_payments").doc(username).delete();
+    }
+    setPending(p=>p.filter(x=>x.id!==username));
+    // Update local users display
+    setUsers(u=>({...u}));
+    setMsg({type:"ok",text:`✓ @${username} activated — ${PLANS[plan]?.name} for ${d} days`});
+    setTimeout(()=>setMsg(null),4000);
+  }
+
+  async function deactivate(username){
+    if(!window.confirm(`Deactivate @${username}? They will lose access immediately.`))return;
+    const data={plan:null,paid:false,paidUntil:0,revokedAt:Date.now()};
+    setSub(username,data);
+    if(db) await db.collection("subscriptions").doc(username).set(data);
+    setMsg({type:"warn",text:`@${username} deactivated`});
+    setTimeout(()=>setMsg(null),4000);
+  }
+
+  async function extendDays(username,days){
+    const cur=subStatus(username);
+    const base=cur.active&&cur.paidUntil?cur.paidUntil:Date.now();
+    const paidUntil=base+(days*86400000);
+    const data={...getSub(username),paid:true,paidUntil,extendedAt:Date.now()};
+    setSub(username,data);
+    if(db) await db.collection("subscriptions").doc(username).set(data);
+    setMsg({type:"ok",text:`✓ @${username} extended by ${days} days`});
+    setTimeout(()=>setMsg(null),4000);
+  }
+
+  async function deleteUser(username){
+    if(!window.confirm(`PERMANENTLY delete @${username} and ALL their data? This cannot be undone.`))return;
+    const u=await getUsers();
+    delete u[username];
+    await setUsers(u);
+    if(db){
+      await db.collection("users").doc(username).delete();
+      await db.collection("subscriptions").doc(username).delete();
+      await db.collection("pending_payments").doc(username).delete();
+    }
+    lsSet(`pg-sub-${username}`,null);
+    setUsers({...u});
+    setMsg({type:"warn",text:`@${username} permanently deleted`});
+    setTimeout(()=>setMsg(null),4000);
+  }
+
+  const allUsers=Object.keys(users).filter(u=>u!==DEV_U);
+  const filtered=allUsers.filter(u=>u.includes(search.toLowerCase())||(users[u]?.business||"").toLowerCase().includes(search.toLowerCase()));
+
+  // Stats
+  const activeUsers=allUsers.filter(u=>{ const s=subStatus(u); return s.active&&!s.trial; });
+  const trialUsers=allUsers.filter(u=>subStatus(u).trial);
+  const expiredUsers=allUsers.filter(u=>subStatus(u).expired);
+  const revenue=activeUsers.reduce((t,u)=>{ const s=subStatus(u); return t+(PLANS[s.plan]?.price||0); },0);
+
+  if(loading)return<div style={{textAlign:"center",padding:60,color:"var(--text3)"}}>
+    <div className="spinner" style={{margin:"0 auto 12px"}}/>Loading admin data…
+  </div>;
+
+  return(
+    <div>
+      {/* Admin header */}
+      <div style={{background:"linear-gradient(135deg,#1a1200,#0a0a0f)",border:"1px solid var(--gold)",borderRadius:10,padding:"16px 20px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10}}>
+        <div>
+          <div style={{fontFamily:"var(--fd)",fontSize:18,fontWeight:800,color:"var(--gold)"}}>⚙ Admin Dashboard</div>
+          <div style={{fontSize:10,color:"var(--text3)",letterSpacing:2,marginTop:2}}>AMISCO4U2 · FULL ACCESS</div>
+        </div>
+        <div style={{fontSize:10,color:"var(--text3)"}}>Firebase: <span style={{color:db?"var(--green)":"var(--red)"}}>{db?"Connected ✓":"Offline"}</span></div>
+      </div>
+
+      {msg&&<div className={`notice ${msg.type==="ok"?"notice-ok":"notice-warn"}`} style={{marginBottom:14}}>{msg.text}</div>}
+
+      {/* Tabs */}
+      <div className="report-tabs" style={{marginBottom:16}}>
+        {[["overview","Overview"],["users","Users"],["payments","Payments"],["settings","Settings"]].map(([id,lbl])=>(
+          <button key={id} className={`report-tab${aTab===id?" active":""}`} onClick={()=>setATab(id)}>{lbl}</button>
+        ))}
+      </div>
+
+      {/* ── OVERVIEW ── */}
+      {aTab==="overview"&&(
+        <div>
+          {/* KPI row */}
+          <div className="stats-grid" style={{marginBottom:14}}>
+            <div className="stat-card">
+              <div className="stat-label">Total Users</div>
+              <div className="stat-val">{allUsers.length}</div>
+              <div className="stat-sub">registered accounts</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Paying</div>
+              <div className="stat-val" style={{color:"var(--green)"}}>{activeUsers.length}</div>
+              <div className="stat-sub">active subscriptions</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">On Trial</div>
+              <div className="stat-val" style={{color:"var(--gold)"}}>{trialUsers.length}</div>
+              <div className="stat-sub">free trial users</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-label">Monthly Revenue</div>
+              <div className="stat-val" style={{fontSize:16}}>{fmt(revenue)}</div>
+              <div className="stat-sub">from {activeUsers.length} paid users</div>
+            </div>
+          </div>
+
+          {/* Pending payments alert */}
+          {pending.length>0&&(
+            <div className="card" style={{marginBottom:14,border:"1px solid var(--gold)"}}>
+              <div className="sec-title" style={{color:"var(--gold)"}}>🔔 Pending Payments — Action Required ({pending.length})</div>
+              {pending.map(p=>{
+                const plan=PLANS[p.plan];
+                const age=Math.floor((Date.now()-p.requestedAt)/60000);
+                const ageStr=age<60?`${age}m ago`:age<1440?`${Math.floor(age/60)}h ago`:`${Math.floor(age/1440)}d ago`;
+                return(
+                  <div key={p.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 0",borderBottom:"1px solid var(--border)",gap:10,flexWrap:"wrap"}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:13,color:"var(--text)",marginBottom:2}}>@{p.id}</div>
+                      <div style={{fontSize:11,color:"var(--text3)"}}>{plan?.name||p.plan} · {plan?.priceLabel} · {ageStr}</div>
+                    </div>
+                    <div style={{display:"flex",gap:7,flexShrink:0,flexWrap:"wrap"}}>
+                      {Object.values(PLANS).map(pl=>(
+                        <button key={pl.id} className={pl.id===p.plan?"btn":"btn-sm"} style={{padding:"8px 12px",fontSize:9}} onClick={()=>activate(p.id,pl.id,30)}>
+                          ✓ {pl.name}
+                        </button>
+                      ))}
+                      <button className="btn-danger" style={{fontSize:9,padding:"8px 10px"}} onClick={()=>deactivate(p.id)}>Reject</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {pending.length===0&&(
+            <div style={{textAlign:"center",padding:"20px",color:"var(--text3)",fontSize:11,marginBottom:14}}>
+              ✓ No pending payments
+            </div>
+          )}
+
+          {/* Plan breakdown */}
+          <div className="card">
+            <div className="sec-title">Subscription Breakdown</div>
+            {Object.values(PLANS).map(pl=>{
+              const count=activeUsers.filter(u=>subStatus(u).plan===pl.id).length;
+              return(
+                <div key={pl.id} className="bar-row">
+                  <div className="bar-label" style={{color:pl.color,fontWeight:600}}>{pl.name}</div>
+                  <div className="bar-track">
+                    <div className="bar-fill rank-1" style={{width:`${activeUsers.length?pct(count,activeUsers.length):0}%`,background:pl.color}}>
+                      {count>0&&<span style={{color:"#0a0a0f",fontSize:10}}>{count} user{count!==1?"s":""}</span>}
+                    </div>
+                  </div>
+                  <div className="bar-val" style={{color:pl.color}}>{fmt(count*pl.price)}/mo</div>
+                </div>
+              );
+            })}
+            <div style={{marginTop:12,paddingTop:12,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+              <span style={{fontSize:11,color:"var(--text3)"}}>Total monthly revenue</span>
+              <span style={{fontSize:16,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)"}}>{fmt(revenue)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── USERS ── */}
+      {aTab==="users"&&(
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <input className="inp" placeholder="Search by username or business…" value={search} onChange={e=>setSearch(e.target.value)}/>
+          </div>
+
+          {filtered.length===0&&<div className="card empty-state"><div className="empty-ico">👤</div><div style={{fontSize:12,letterSpacing:2}}>NO USERS YET</div></div>}
+
+          {filtered.map(u=>{
+            const status=subStatus(u);
+            const usr=users[u];
+            const isExpanded=expandUser===u;
+            const joined=usr?.created?new Date(usr.created).toLocaleDateString():"—";
+            return(
+              <div key={u} className="card" style={{marginBottom:10,border:isExpanded?"1px solid var(--gold)":"1px solid var(--border)"}}>
+                {/* User header row */}
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:10,cursor:"pointer"}} onClick={()=>setExpandUser(isExpanded?null:u)}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:3,flexWrap:"wrap"}}>
+                      <span style={{fontFamily:"var(--fd)",fontWeight:800,fontSize:14,color:"var(--text)"}}>{usr?.business||u}</span>
+                      {status.trial&&<span style={{fontSize:8,color:"var(--gold)",background:"#f5a62322",padding:"2px 7px",borderRadius:99,border:"1px solid #f5a62344",letterSpacing:1}}>TRIAL · {status.daysLeft}d</span>}
+                      {status.active&&!status.trial&&<span style={{fontSize:8,color:"var(--green)",background:"#22c55e22",padding:"2px 7px",borderRadius:99,border:"1px solid #22c55e44",letterSpacing:1}}>{PLANS[status.plan]?.name?.toUpperCase()} · ACTIVE</span>}
+                      {status.expired&&<span style={{fontSize:8,color:"var(--red)",background:"#ef444422",padding:"2px 7px",borderRadius:99,border:"1px solid #ef444444",letterSpacing:1}}>EXPIRED</span>}
+                    </div>
+                    <div style={{fontSize:10,color:"var(--text3)"}}>@{u} · Joined {joined}{status.paidUntil?" · Expires "+new Date(status.paidUntil).toLocaleDateString():""}</div>
+                  </div>
+                  <span style={{fontSize:12,color:"var(--text3)",flexShrink:0}}>{isExpanded?"▲":"▼"}</span>
+                </div>
+
+                {/* Expanded controls */}
+                {isExpanded&&(
+                  <div style={{marginTop:14,paddingTop:14,borderTop:"1px solid var(--border)"}}>
+                    <div style={{fontSize:9,letterSpacing:2,color:"var(--text3)",marginBottom:10,textTransform:"uppercase"}}>Activate / Extend</div>
+                    <div style={{display:"flex",gap:7,flexWrap:"wrap",marginBottom:12}}>
+                      {Object.values(PLANS).map(pl=>(
+                        <button key={pl.id} className="btn-sm" style={{fontSize:10,padding:"7px 14px",borderColor:pl.color,color:pl.color}} onClick={()=>activate(u,pl.id,30)}>
+                          {pl.name} 30d
+                        </button>
+                      ))}
+                      {Object.values(PLANS).map(pl=>(
+                        <button key={pl.id+"90"} className="btn-sm" style={{fontSize:10,padding:"7px 14px"}} onClick={()=>activate(u,pl.id,90)}>
+                          {pl.name} 90d
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:12,flexWrap:"wrap"}}>
+                      <span style={{fontSize:10,color:"var(--text3)"}}>Custom days:</span>
+                      <input type="number" className="inp" value={customDays} onChange={e=>setCustomDays(Number(e.target.value))} style={{width:70,padding:"6px 10px",fontSize:12}}/>
+                      {status.active&&Object.values(PLANS).map(pl=>(
+                        <button key={pl.id} className="btn-sm" style={{fontSize:10,padding:"7px 12px"}} onClick={()=>extendDays(u,customDays)}>
+                          +{customDays}d
+                        </button>
+                      ))}
+                      {!status.active&&Object.values(PLANS).map(pl=>(
+                        <button key={pl.id} className="btn-sm" style={{fontSize:10,padding:"7px 12px",borderColor:pl.color,color:pl.color}} onClick={()=>activate(u,pl.id,customDays)}>
+                          {pl.name} {customDays}d
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      {status.active&&<button className="btn-danger" onClick={()=>deactivate(u)}>Revoke Access</button>}
+                      <button className="btn-danger" style={{opacity:.7}} onClick={()=>deleteUser(u)}>Delete Account</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── PAYMENTS ── */}
+      {aTab==="payments"&&(
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">Payment History</div>
+            {allUsers.filter(u=>{const s=subStatus(u);return s.paid||s.paidUntil;}).length===0
+              ?<div style={{fontSize:11,color:"var(--text3)",padding:"8px 0"}}>No payments recorded yet.</div>
+              :allUsers.filter(u=>{const s=getSub(u);return s&&s.paid;}).map(u=>{
+                const s=getSub(u);const status=subStatus(u);
+                return(
+                  <div key={u} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"12px 0",borderBottom:"1px solid var(--border)",flexWrap:"wrap",gap:8}}>
+                    <div>
+                      <div style={{fontWeight:600,fontSize:12,marginBottom:2}}>@{u}</div>
+                      <div style={{fontSize:10,color:"var(--text3)"}}>{PLANS[s.plan]?.name} · Activated {s.activatedAt?new Date(s.activatedAt).toLocaleDateString():"—"}</div>
+                    </div>
+                    <div style={{textAlign:"right"}}>
+                      <div style={{fontSize:13,fontWeight:700,color:status.active?"var(--green)":"var(--red)"}}>{status.active?"Active":"Expired"}</div>
+                      <div style={{fontSize:10,color:"var(--text3)"}}>until {s.paidUntil?new Date(s.paidUntil).toLocaleDateString():"—"}</div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+            <div style={{marginTop:14,paddingTop:14,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between"}}>
+              <span style={{fontSize:11,color:"var(--text3)"}}>Active subscriptions revenue</span>
+              <span style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{fmt(revenue)}/month</span>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="sec-title">🔔 Pending ({pending.length})</div>
+            {pending.length===0&&<div style={{fontSize:11,color:"var(--text3)"}}>No pending payments.</div>}
+            {pending.map(p=>{
+              const plan=PLANS[p.plan];
+              const age=Math.floor((Date.now()-p.requestedAt)/60000);
+              const ageStr=age<60?`${age}m ago`:age<1440?`${Math.floor(age/60)}h ago`:`${Math.floor(age/1440)}d ago`;
+              return(
+                <div key={p.id} style={{padding:"14px 0",borderBottom:"1px solid var(--border)"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:8,marginBottom:10}}>
+                    <div>
+                      <div style={{fontWeight:700,fontSize:13,color:"var(--text)",marginBottom:2}}>@{p.id}</div>
+                      <div style={{fontSize:11,color:"var(--text3)"}}>{plan?.name} · {plan?.priceLabel} · requested {ageStr}</div>
+                    </div>
+                    <button className="btn-danger" style={{fontSize:9,padding:"6px 12px"}} onClick={()=>{
+                      if(db)db.collection("pending_payments").doc(p.id).delete();
+                      setPending(pp=>pp.filter(x=>x.id!==p.id));
+                    }}>Remove</button>
+                  </div>
+                  <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
+                    {Object.values(PLANS).map(pl=>(
+                      <button key={pl.id} className={pl.id===p.plan?"btn":"btn-sm"} style={{fontSize:9,padding:"7px 14px"}} onClick={()=>activate(p.id,pl.id,30)}>
+                        ✓ Activate {pl.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── SETTINGS ── */}
+      {aTab==="settings"&&(
+        <div>
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">Developer Account</div>
+            <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:14}}>
+              <div style={{flex:1,background:"var(--bg)",borderRadius:8,padding:"14px",border:"1px solid var(--border)"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"var(--text3)",marginBottom:4}}>USERNAME</div>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>amisco4u2</div>
+              </div>
+              <div style={{flex:1,background:"var(--bg)",borderRadius:8,padding:"14px",border:"1px solid var(--border)"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"var(--text3)",marginBottom:4}}>ACCESS LEVEL</div>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--green)",fontFamily:"var(--fd)"}}>Full Admin</div>
+              </div>
+              <div style={{flex:1,background:"var(--bg)",borderRadius:8,padding:"14px",border:"1px solid var(--border)"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"var(--text3)",marginBottom:4}}>SUBSCRIPTION</div>
+                <div style={{fontSize:14,fontWeight:700,color:"var(--green)",fontFamily:"var(--fd)"}}>Unlimited ∞</div>
+              </div>
+            </div>
+            <div style={{fontSize:11,color:"var(--text3)",lineHeight:1.8,padding:"12px 14px",background:"var(--bg)",borderRadius:6}}>
+              The developer account has unlimited access to all features, never expires, and is the only account that can see this Admin panel. No other user can access admin controls.
+            </div>
+          </div>
+
+          <div className="card" style={{marginBottom:14}}>
+            <div className="sec-title">MoMo Payment Numbers</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <div style={{background:"#f59e0b22",border:"1px solid #f59e0b44",borderRadius:8,padding:"14px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#f59e0b",fontWeight:700,marginBottom:4}}>MTN MOMO</div>
+                <div style={{fontSize:18,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)"}}>{OWNER.mtn}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+              <div style={{background:"#ef444422",border:"1px solid #ef444444",borderRadius:8,padding:"14px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#ef4444",fontWeight:700,marginBottom:4}}>TELECEL</div>
+                <div style={{fontSize:18,fontWeight:800,color:"#ef4444",fontFamily:"var(--fd)"}}>{OWNER.telecel}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="sec-title">App Stats</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              {[
+                ["Total Users",allUsers.length],
+                ["Paying Users",activeUsers.length],
+                ["Trial Users",trialUsers.length],
+                ["Expired Users",expiredUsers.length],
+                ["Pending Payments",pending.length],
+                ["Monthly Revenue",fmt(revenue)],
+              ].map(([label,val])=>(
+                <div key={label} style={{background:"var(--bg)",borderRadius:8,padding:"12px 14px",border:"1px solid var(--border)"}}>
+                  <div style={{fontSize:9,letterSpacing:2,color:"var(--text3)",marginBottom:4,textTransform:"uppercase"}}>{label}</div>
+                  <div style={{fontSize:16,fontWeight:700,color:"var(--gold)",fontFamily:"var(--fd)"}}>{val}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function VTransfer({drivers,sales,wap,session,onExport,onImport}){
+  return(
+    <div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="sec-title">Install App</div>
+        <InstallGuide/>
+      </div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="sec-title">Export Data to Excel</div>
+        <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:16}}>
+          Downloads a complete .xlsx file with Drivers, Sales, and Work &amp; Pay sheets. Use this to back up your data or open in Excel/Google Sheets.
+        </p>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{drivers.length} Drivers</span>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{Object.keys(sales).length} Sales Records</span>
+          <span style={{fontSize:10,color:"var(--green)",background:"#22c55e11",border:"1px solid #22c55e33",borderRadius:99,padding:"3px 10px"}}>{Object.keys(wap).length} W&P Records</span>
+        </div>
+        <button className="btn" onClick={onExport}><Ic name="download" size={14} color="#0a0a0f"/>Export to Excel (.xlsx)</button>
+      </div>
+      <div className="card">
+        <div className="sec-title">Import Data from Excel</div>
+        <p style={{fontSize:12,color:"var(--text2)",lineHeight:1.7,marginBottom:14}}>
+          Import a .xlsx file previously exported from FleetSales. This will replace your current data. Export a backup first if needed.
+        </p>
+        <button className="btn btn-blue" onClick={onImport}><Ic name="upload" size={14}/>Import from Excel</button>
+      </div>
+    </div>
+  );
+}
+
+function ImportModal({onFile,msg,onClose}){
+  const ref=useRef();const [drag,setDrag]=useState(false);
+  function handleDrop(e){e.preventDefault();setDrag(false);const f=e.dataTransfer.files[0];if(f)onFile(f);}
+  return(
+    <div className="modal-ov" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-hdr">
+          <div className="modal-title">Import Excel File</div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:3}}><Ic name="x" size={17}/></button>
+        </div>
+        {msg&&<div className={`notice ${msg.type==="ok"?"notice-ok":"notice-err"}`}>{msg.type==="ok"?"✓":"⚠"} {msg.text}</div>}
+        <div className={`import-zone${drag?" drag":""}`} onDragOver={e=>{e.preventDefault();setDrag(true);}} onDragLeave={()=>setDrag(false)} onDrop={handleDrop} onClick={()=>ref.current.click()}>
+          <input ref={ref} type="file" accept=".xlsx,.xls" onChange={e=>{if(e.target.files[0])onFile(e.target.files[0]);}}/>
+          <div style={{fontSize:36,marginBottom:10}}>📂</div>
+          <div style={{fontSize:13,color:"var(--text2)",fontWeight:600,marginBottom:5}}>Drop .xlsx file here or tap to browse</div>
+          <div style={{fontSize:11,color:"var(--text3)"}}>Must be a FleetSales export file</div>
+        </div>
+        <div className="modal-foot"><button className="btn-outline" onClick={onClose}>Cancel</button></div>
+      </div>
+    </div>
+  );
+}
+
+function DrvModal({driver,onSave,onClose,vehicleType}){
+  const vt=getVehicle(vehicleType||"other");
+  const [f,setF]=useState(driver||{color:"BLACK",name:"",tel:"",tracker:"",reg:"",workAndPay:false,wapAmount:0});
+  const sv=(k,v)=>setF(p=>({...p,[k]:v}));
+  return(
+    <div className="modal-ov" onClick={onClose}>
+      <div className="modal-box" onClick={e=>e.stopPropagation()}>
+        <div className="modal-hdr">
+          <div className="modal-title">{driver?"Edit Driver":"New Driver"}</div>
+          <button onClick={onClose} style={{background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:3}}><Ic name="x" size={17}/></button>
+        </div>
+        <div className="modal-grid">
+          <div><label className="lbl">Driver Name</label><input className="inp" value={f.name} onChange={e=>sv("name",e.target.value.toUpperCase())} placeholder="JOHN"/></div>
+          <div><label className="lbl">{vt.colorLabel}</label>
+            <select className="sel" style={{width:"100%"}} value={f.color} onChange={e=>sv("color",e.target.value)}>
+              {DCOLORS.map(c=><option key={c}>{c}</option>)}
+            </select>
+          </div>
+          <div><label className="lbl">Tel. Number</label><input className="inp" value={f.tel} onChange={e=>sv("tel",e.target.value)} placeholder="0200000000"/></div>
+          <div><label className="lbl">Tracker No.</label><input className="inp" value={f.tracker} onChange={e=>sv("tracker",e.target.value)} placeholder="0200000000"/></div>
+          <div style={{gridColumn:"1/-1"}}><label className="lbl">Registration No.</label><input className="inp" value={f.reg} onChange={e=>sv("reg",e.target.value.toUpperCase())} placeholder={vt.regEx}/></div>
+          <div style={{gridColumn:"1/-1",display:"flex",alignItems:"center",gap:10,padding:12,background:"var(--bg)",borderRadius:6,border:"1px solid var(--border)"}}>
+            <input type="checkbox" id="wchk" checked={f.workAndPay} onChange={e=>sv("workAndPay",e.target.checked)} style={{accentColor:"var(--gold)",width:15,height:15}}/>
+            <label htmlFor="wchk" style={{fontSize:12,cursor:"pointer",color:"var(--text2)"}}>Work &amp; Pay driver</label>
+          </div>
+          {f.workAndPay&&<div style={{gridColumn:"1/-1"}}><label className="lbl">Total Amount Owed (GH&#8373;)</label><input className="inp" type="number" value={f.wapAmount} onChange={e=>sv("wapAmount",Number(e.target.value))} placeholder="0"/></div>}
+        </div>
+        <div className="modal-foot">
+          <button className="btn-outline" onClick={onClose}>Cancel</button>
+          <button className="btn" onClick={()=>onSave(f)} disabled={!f.name.trim()}>{driver?"Save Changes":"Add Driver"}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
