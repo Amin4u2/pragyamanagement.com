@@ -9,8 +9,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="FleetSales"/>
   <meta name="application-name" content="FleetSales"/>
-  <meta name="description" content="FleetSales — Business Sales Management System for transport operators"/>
+  <meta name="description" content="FleetSales — Business Sales Management System for Taxi, Bolt, Uber, Okada, Pragya &amp; more. Track drivers, sales and work-and-pay across your fleet."/>
   <meta name="msapplication-TileColor" content="#0a0a0f"/>
+  <meta property="og:title" content="FleetSales — Business Sales Management System"/>
+  <meta property="og:description" content="Track drivers, sales and work-and-pay for your Taxi, Bolt, Uber, Okada or Pragya fleet."/>
+  <meta property="og:url" content="https://fleetsales.web.app"/>
+  <meta property="og:type" content="website"/>
+  <meta name="twitter:card" content="summary"/>
+  <meta name="twitter:title" content="FleetSales"/>
+  <meta name="twitter:description" content="Business Sales Management System for transport fleets"/>
   <!-- PWA Manifest (inline as data URI so it works from a single HTML file) -->
   <link rel="manifest" id="pwa-manifest"/>
   <!-- Apple Touch Icons (generated via JS below) -->
@@ -181,6 +188,7 @@
     @keyframes toastOut{from{opacity:1;}to{opacity:0;}}
     .notice-ok{background:#22c55e11;border:1px solid #22c55e33;color:var(--green);}
     .notice-err{background:#ef444411;border:1px solid #ef444433;color:var(--red);}
+    .notice-warn{background:#f5a62311;border:1px solid #f5a62333;color:var(--gold);}
     .empty-state{text-align:center;padding:50px 20px;color:var(--text3);}
     .empty-ico{font-size:40px;margin-bottom:12px;}
     .loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px;background:var(--bg);}
@@ -283,7 +291,7 @@
     const manifest = {
       name: 'FleetSales', short_name: 'FleetSales',
       description: 'FleetSales — Business Sales Management System',
-      start_url: './', scope: './', display: 'standalone',
+      start_url: 'https://fleetsales.web.app/', scope: 'https://fleetsales.web.app/', display: 'standalone',
       orientation: 'portrait-primary',
       background_color: '#0a0a0f', theme_color: '#0a0a0f',
       categories: ['business', 'finance'],
@@ -300,8 +308,8 @@
     name: 'FleetSales',
     short_name: 'FleetSales',
     description: 'FleetSales — Business Sales Management System for Taxi, Bolt, Uber, Okada, Pragya & more',
-    start_url: './',
-    scope: './',
+    start_url: 'https://fleetsales.web.app/',
+    scope: 'https://fleetsales.web.app/',
     display: 'standalone',
     orientation: 'portrait-primary',
     background_color: '#0a0a0f',
@@ -619,11 +627,11 @@ function SetupScreen(){
         </div>
         <div className="setup-step">
           <div className="step-num">4</div>
-          <div className="step-body">Go to <strong>Project Settings</strong> (gear icon). Scroll down to <strong>Your apps</strong>, click the <strong>web icon (&lt;/&gt;)</strong>, register your app, then copy the <strong>firebaseConfig</strong> object values.</div>
+          <div className="step-body">Go to <strong>Project Settings</strong> (gear icon). Scroll down to <strong>Your apps</strong>, click the <strong>web icon (&lt;/&gt;)</strong>, register your app, then copy the <strong>firebaseConfig</strong> values into your <code style={{color:"var(--gold)"}}>index.html</code>.</div>
         </div>
         <div className="setup-step">
           <div className="step-num">5</div>
-          <div className="step-body">Open your <strong>index.html</strong> file (from GitHub). Find the section that says <strong>PASTE YOUR FIREBASE CONFIG BELOW</strong> and replace each <code style={{color:"var(--gold)"}}>PASTE_YOUR_..._HERE</code> value with the values from your Firebase config. Save the file and push to GitHub.</div>
+          <div className="step-body">Push your updated <strong>index.html</strong> to GitHub. The app will automatically deploy to <strong style={{color:"var(--gold)"}}>fleetsales.web.app</strong> via GitHub Actions.</div>
         </div>
         <div style={{background:"var(--bg)",border:"1px solid var(--border2)",borderRadius:8,padding:"14px 16px",marginTop:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
           <strong style={{color:"var(--text2)"}}>Why Firebase?</strong> It's a free Google service that stores your data in the cloud so it syncs instantly between your phone, tablet and computer. The free plan supports up to 50,000 reads and 20,000 writes per day — more than enough for FleetSales.
@@ -824,7 +832,7 @@ function Auth({onLogin}){
   return(
     <div className="auth-wrap fade-in">
       <div className="auth-logo">🚗 FleetSales</div>
-      <div className="auth-tagline">Business Management System</div>
+      <div className="auth-tagline" style={{fontSize:10,letterSpacing:3}}>BUSINESS SALES MANAGEMENT SYSTEM</div>
       <div className="auth-card">
         <div className="auth-tabs">
           {[["signin","Sign In"],["signup","Sign Up"]].map(([t,l])=>(
@@ -863,6 +871,7 @@ function Auth({onLogin}){
           {busy?"Please wait…":tab==="signin"?"Sign In →":"Create Account →"}
         </button>
         {tab==="signin"&&<p style={{textAlign:"center",fontSize:10,color:"var(--text3)",marginTop:12}}>No account? <span style={{color:"var(--gold)",cursor:"pointer"}} onClick={()=>{setTab("signup");setErr("");}}>Sign up free</span></p>}
+        <div style={{marginTop:20,fontSize:9,color:"var(--text3)",letterSpacing:2,textAlign:"center",opacity:.5}}>FLEETSALES.WEB.APP</div>
       </div>
       <div style={{marginTop:16,display:"flex",alignItems:"center",gap:6,fontSize:10,color:db?"var(--green)":"var(--text3)"}}>
         <Ic name="cloud" size={13} color={db?"var(--green)":"var(--text3)"}/>
@@ -893,7 +902,7 @@ function App(){
   };
   const logout=()=>{setSession(null);setSess(null);};
 
-  if(!FIREBASE_CONFIGURED) return <SetupScreen/>;
+  // Firebase is configured — SetupScreen no longer needed
   if(!ready)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING…</div></div>;
   if(!sess)return<Auth onLogin={login}/>;
   // Check subscription — DEV account always passes
