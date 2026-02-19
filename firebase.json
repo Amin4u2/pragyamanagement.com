@@ -1,27 +1,12 @@
 {
   "hosting": {
+    "target": "fleetsales",
     "public": ".",
     "ignore": [
       "firebase.json",
       ".firebaserc",
       ".github",
-      ".gitignore",
-      "*.md"
-    ],
-    "headers": [
-      {
-        "source": "**",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
-          { "key": "X-Content-Type-Options", "value": "nosniff" }
-        ]
-      },
-      {
-        "source": "index.html",
-        "headers": [
-          { "key": "Cache-Control", "value": "no-cache" }
-        ]
-      }
+      ".gitignore"
     ],
     "rewrites": [
       {
