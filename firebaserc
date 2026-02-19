@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "pragya-manager"
+  },
+  "targets": {
+    "pragya-manager": {
+      "hosting": {
+        "fleetsales": [
+          "fleetsales"
+        ]
+      }
+    }
   }
 }
