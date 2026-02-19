@@ -408,6 +408,8 @@ function getSub(u){return lsGet(subKey(u));}
 function setSub(u,data){lsSet(subKey(u),data);}
 
 function subStatus(u){
+  // Dev account is always unlimited — never expires, never trial
+  if(u===DEV_U) return{active:true,trial:false,expired:false,plan:"premium",unlimited:true};
   const s=getSub(u);
   if(!s)return{active:false,trial:false,expired:true,plan:null};
   const now=Date.now();
@@ -865,8 +867,8 @@ function App(){
 
   const login=u=>{
     setSession(u);setSess(u);
-    // Start trial for brand-new users who have never had a sub
-    if(!getSub(u.username)) startTrial(u.username,"standard");
+    // Start trial for brand-new users (not dev account)
+    if(!u.isDev && !getSub(u.username)) startTrial(u.username,"standard");
   };
   const logout=()=>{setSession(null);setSess(null);};
 
@@ -1100,11 +1102,12 @@ function Dashboard({session,subStatus,onLogout}){
             <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
           </div>
           {/* Subscription status */}
-          {subStatus&&<div style={{marginBottom:10,padding:"8px 10px",background:"var(--bg)",borderRadius:6,border:`1px solid ${subStatus.trial?"#f5a62344":subStatus.active?"#22c55e44":"#ef444444"}`}}>
+          {subStatus&&<div style={{marginBottom:10,padding:"8px 10px",background:"var(--bg)",borderRadius:6,border:`1px solid ${subStatus.unlimited?"#22c55e44":subStatus.trial?"#f5a62344":subStatus.active?"#22c55e44":"#ef444444"}`}}>
             <div style={{fontSize:8,letterSpacing:2,color:"var(--text3)",marginBottom:3}}>SUBSCRIPTION</div>
-            {subStatus.trial&&<div style={{fontSize:10,color:"var(--gold)",fontWeight:600}}>{subStatus.daysLeft}d free trial left</div>}
-            {subStatus.active&&!subStatus.trial&&<div style={{fontSize:10,color:"var(--green)",fontWeight:600}}>{PLANS[subStatus.plan]?.name} — Active</div>}
-            {!subStatus.active&&<div style={{fontSize:10,color:"var(--red)",fontWeight:600}}>Expired</div>}
+            {subStatus.unlimited&&<div style={{fontSize:10,color:"var(--green)",fontWeight:700}}>Unlimited ∞</div>}
+            {!subStatus.unlimited&&subStatus.trial&&<div style={{fontSize:10,color:"var(--gold)",fontWeight:600}}>{subStatus.daysLeft}d free trial left</div>}
+            {!subStatus.unlimited&&subStatus.active&&!subStatus.trial&&<div style={{fontSize:10,color:"var(--green)",fontWeight:600}}>{PLANS[subStatus.plan]?.name} — Active</div>}
+            {!subStatus.unlimited&&!subStatus.active&&<div style={{fontSize:10,color:"var(--red)",fontWeight:600}}>Expired</div>}
           </div>}
           {installable&&<button className="btn" style={{width:"100%",marginBottom:10,fontSize:10,padding:"8px 12px"}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>
             ⬇ Install App
