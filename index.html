@@ -351,6 +351,7 @@ self.addEventListener('fetch', e => {
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<!-- Paystack -->
 <!-- React + Babel + SheetJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -363,24 +364,24 @@ self.addEventListener('fetch', e => {
      Project Settings > Your apps > SDK setup > Config
      ══════════════════════════════════════════════ -->
 <script>
+// ── Firebase config injected by GitHub Actions — never hardcoded ──────────
+// See .github/workflows/deploy.yml for how secrets are injected safely
 const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyBJAUFdYgsDt7jSI4m74SK8W6uHJWIOTvM",
-  authDomain:        "pragya-manager.firebaseapp.com",
-  projectId:         "pragya-manager",
-  storageBucket:     "pragya-manager.firebasestorage.app",
-  messagingSenderId: "1014139558240",
-  appId:             "1:1014139558240:web:5a37dabe4dad2ed5c02605"
+  apiKey:            "%%FIREBASE_API_KEY%%",
+  authDomain:        "%%FIREBASE_AUTH_DOMAIN%%",
+  projectId:         "%%FIREBASE_PROJECT_ID%%",
+  storageBucket:     "%%FIREBASE_STORAGE_BUCKET%%",
+  messagingSenderId: "%%FIREBASE_MESSAGING_SENDER_ID%%",
+  appId:             "%%FIREBASE_APP_ID%%"
 };
 
-// Detect if config has been filled in
-const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes("PASTE_YOUR");
+const FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.includes("%%");
 
 let db = null;
 if (FIREBASE_CONFIGURED) {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
-    // Force server data — do NOT use persistence (causes stale cache on mobile)
     db.settings({ cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED });
   } catch(e) { console.warn("Firebase init failed:", e); }
 }
@@ -393,6 +394,35 @@ const MONTHS=["January","February","March","April","May","June","July","August",
 const CY=new Date().getFullYear();
 const YEARS=Array.from({length:7},(_,i)=>(CY-3+i).toString());
 const DCOLORS=["BLACK","GREEN","RED","YELLOW","BLUE","ORANGE","WHITE","PURPLE"];
+
+// ── Subscription Plans ────────────────────────────────────────
+const PLANS={
+  basic:  {id:"basic",  name:"Basic",   price:3000,  priceLabel:"GH₵ 30/mo",  drivers:3,  color:"#3b82f6"},
+  standard:{id:"standard",name:"Standard",price:6000,priceLabel:"GH₵ 60/mo",  drivers:10, color:"#f5a623"},
+  premium:{id:"premium",name:"Premium", price:12000, priceLabel:"GH₵ 120/mo", drivers:999,color:"#22c55e"},
+};
+const TRIAL_DAYS=7;
+
+// ── Subscription helpers ──────────────────────────────────────
+function subKey(u){return `pg-sub-${u}`;}
+function getSub(u){return lsGet(subKey(u));}
+function setSub(u,data){lsSet(subKey(u),data);}
+
+function subStatus(u){
+  const s=getSub(u);
+  if(!s)return{active:false,trial:false,expired:true,plan:null};
+  const now=Date.now();
+  if(s.trialEnd && now<s.trialEnd && !s.paid) return{active:true,trial:true,expired:false,plan:s.plan,trialEnd:s.trialEnd,daysLeft:Math.ceil((s.trialEnd-now)/86400000)};
+  if(s.paid && s.paidUntil && now<s.paidUntil) return{active:true,trial:false,expired:false,plan:s.plan,paidUntil:s.paidUntil};
+  return{active:false,trial:false,expired:true,plan:s.plan};
+}
+
+function startTrial(u,plan){
+  const existing=getSub(u);
+  if(existing&&(existing.paid||existing.trialEnd))return; // already has sub or trial
+  setSub(u,{plan,trialEnd:Date.now()+TRIAL_DAYS*86400000,paid:false,created:Date.now()});
+}
+
 const CHEX={BLACK:"#94a3b8",GREEN:"#22c55e",RED:"#ef4444",YELLOW:"#eab308",BLUE:"#3b82f6",ORANGE:"#f97316",WHITE:"#e2e8f0",PURPLE:"#a855f7"};
 const DEV_U="amisco4u2", DEV_P="Amiena702$";
 
@@ -596,6 +626,150 @@ function SetupScreen(){
   );
 }
 
+
+// ── OWNER CONFIG ─────────────────────────────────────────────
+const OWNER={
+  name:     "Amin Moro Mohammed",
+  mtn:      "0243911216",
+  telecel:  "0505027255",
+  whatsapp: ["0243911216","0505027255"], // both on WhatsApp
+};
+
+// ── Subscription Wall — MoMo manual payment ───────────────────
+function SubscriptionWall({username,onActivated}){
+  const [sel,setSel]=useState("standard");
+  const [step,setStep]=useState("plans"); // plans | instructions | pending | trial
+  const sub=subStatus(username);
+  const plan=PLANS[sel];
+
+  function doTrial(){
+    startTrial(username,sel);
+    setStep("trial");
+    setTimeout(()=>onActivated(),1200);
+  }
+  function doPay(){
+    // Save pending payment so owner can see it
+    const pending={username,plan:sel,amount:plan.price,requestedAt:Date.now(),status:"pending"};
+    lsSet(`pg-pending-${username}`,pending);
+    if(db) db.collection("pending_payments").doc(username).set(pending);
+    setStep("instructions");
+  }
+  function checkActivation(){
+    // Re-check if owner has activated them
+    const s=subStatus(username);
+    if(s.active) onActivated();
+    else alert("Not activated yet. Send your MoMo reference to the WhatsApp number shown and wait for activation.");
+  }
+
+  return(
+    <div className="auth-wrap fade-in" style={{padding:"20px 16px"}}>
+      <div className="auth-logo">🛺 PRAGYA</div>
+      <div className="auth-tagline">Subscription Required</div>
+
+      {/* Expired notice */}
+      {sub.expired&&sub.plan&&(
+        <div style={{background:"#ef444411",border:"1px solid #ef444433",borderRadius:8,padding:"10px 16px",marginBottom:16,fontSize:11,color:"var(--red)",textAlign:"center",width:"100%",maxWidth:460}}>
+          Your {sub.trial?"free trial":"subscription"} has expired.
+        </div>
+      )}
+
+      {/* ── STEP 1: Choose plan ── */}
+      {step==="plans"&&(
+        <div style={{width:"100%",maxWidth:460}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:16}}>
+            {Object.values(PLANS).map(p=>(
+              <div key={p.id} onClick={()=>setSel(p.id)} style={{cursor:"pointer",background:sel===p.id?"var(--bg2)":"var(--bg)",border:`2px solid ${sel===p.id?p.color:"var(--border)"}`,borderRadius:10,padding:"14px 10px",textAlign:"center",transition:"all .2s"}}>
+                <div style={{fontSize:10,letterSpacing:2,color:sel===p.id?p.color:"var(--text3)",textTransform:"uppercase",marginBottom:5}}>{p.name}</div>
+                <div style={{fontSize:18,fontWeight:800,color:sel===p.id?p.color:"var(--text)",fontFamily:"var(--fd)",marginBottom:3}}>{p.priceLabel}</div>
+                <div style={{fontSize:10,color:"var(--text3)"}}>{p.drivers===999?"Unlimited":p.drivers} drivers</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+            <button className="btn-outline" style={{padding:"13px",justifyContent:"center",fontSize:11}} onClick={doTrial}>
+              🎁 Free Trial (7 days)
+            </button>
+            <button className="btn" style={{padding:"13px",justifyContent:"center",fontSize:11}} onClick={doPay}>
+              📱 Pay via MoMo
+            </button>
+          </div>
+          <div style={{marginTop:20,fontSize:10,color:"var(--text3)",textAlign:"center"}}>
+            Signed in as <span style={{color:"var(--gold)"}}>{username}</span> ·
+            <span style={{color:"var(--red)",cursor:"pointer",marginLeft:6}} onClick={()=>{lsSet("pg-session",null);window.location.reload();}}>Sign out</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 2: MoMo payment instructions ── */}
+      {step==="instructions"&&(
+        <div style={{width:"100%",maxWidth:460}}>
+          <div style={{background:"var(--bg2)",border:"1px solid var(--gold)",borderRadius:12,padding:"20px",marginBottom:16}}>
+            <div style={{fontSize:11,letterSpacing:2,color:"var(--text3)",marginBottom:12,textTransform:"uppercase"}}>Payment Instructions</div>
+
+            {/* Amount box */}
+            <div style={{background:"var(--bg)",borderRadius:8,padding:"14px",marginBottom:14,textAlign:"center"}}>
+              <div style={{fontSize:11,color:"var(--text3)",marginBottom:4}}>Amount to Send</div>
+              <div style={{fontSize:28,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)"}}>{plan.priceLabel.replace("/mo","")}</div>
+              <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>for {plan.name} Plan · 30 days</div>
+            </div>
+
+            {/* Steps */}
+            {[
+              "Choose MTN or Telecel below and open that MoMo app",
+              `Send ${plan.priceLabel.replace("/mo","")} to the number shown`,
+              "Copy the transaction reference/ID after sending",
+              `WhatsApp the reference + your username "${username}" to either number`,
+              "Tap the button below — you'll be activated within minutes"
+            ].map((s,i)=>(
+              <div key={i} style={{display:"flex",gap:12,marginBottom:10,alignItems:"flex-start"}}>
+                <div style={{width:22,height:22,borderRadius:"50%",background:"var(--gold)",color:"#0a0a0f",fontSize:11,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{i+1}</div>
+                <div style={{fontSize:12,color:"var(--text2)",lineHeight:1.6,paddingTop:2}}>{s}</div>
+              </div>
+            ))}
+
+            {/* Both MoMo numbers */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginTop:8}}>
+              <div style={{background:"#f59e0b22",border:"1px solid #f59e0b44",borderRadius:8,padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#f59e0b",marginBottom:4,fontWeight:700}}>MTN MOMO</div>
+                <div style={{fontSize:19,fontWeight:800,color:"var(--gold)",fontFamily:"var(--fd)",letterSpacing:1}}>{OWNER.mtn}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+              <div style={{background:"#ef444422",border:"1px solid #ef444444",borderRadius:8,padding:"12px",textAlign:"center"}}>
+                <div style={{fontSize:9,letterSpacing:2,color:"#ef4444",marginBottom:4,fontWeight:700}}>TELECEL</div>
+                <div style={{fontSize:19,fontWeight:800,color:"#ef4444",fontFamily:"var(--fd)",letterSpacing:1}}>{OWNER.telecel}</div>
+                <div style={{fontSize:10,color:"var(--text3)",marginTop:3}}>{OWNER.name}</div>
+              </div>
+            </div>
+            <div style={{textAlign:"center",marginTop:8,fontSize:10,color:"var(--text3)"}}>
+              💬 WhatsApp either number with your reference
+            </div>
+          </div>
+
+          <button className="btn" style={{width:"100%",padding:"14px",justifyContent:"center",fontSize:12,marginBottom:10}} onClick={checkActivation}>
+            ✓ I've Paid — Check Activation
+          </button>
+          <button className="btn-outline" style={{width:"100%",padding:"12px",justifyContent:"center",fontSize:11}} onClick={()=>setStep("plans")}>
+            ← Back to Plans
+          </button>
+          <div style={{marginTop:14,fontSize:10,color:"var(--text3)",textAlign:"center"}}>
+            Signed in as <span style={{color:"var(--gold)"}}>{username}</span> ·
+            <span style={{color:"var(--red)",cursor:"pointer",marginLeft:6}} onClick={()=>{lsSet("pg-session",null);window.location.reload();}}>Sign out</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: Trial started ── */}
+      {step==="trial"&&(
+        <div style={{textAlign:"center",padding:"20px"}}>
+          <div style={{fontSize:40,marginBottom:12}}>🎉</div>
+          <div style={{fontSize:16,fontWeight:700,color:"var(--green)",fontFamily:"var(--fd)",marginBottom:6}}>7-Day Free Trial Started!</div>
+          <div style={{fontSize:12,color:"var(--text3)"}}>Loading your dashboard…</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── AUTH ──────────────────────────────────────────────────────
 function Auth({onLogin}){
   const [tab,setTab]=useState("signin");
@@ -690,17 +864,26 @@ function App(){
     });
   },[]);
 
-  const login=u=>{setSession(u);setSess(u);};
+  const login=u=>{
+    setSession(u);setSess(u);
+    // Start trial for brand-new users who have never had a sub
+    if(!getSub(u.username)) startTrial(u.username,"standard");
+  };
   const logout=()=>{setSession(null);setSess(null);};
 
   if(!FIREBASE_CONFIGURED) return <SetupScreen/>;
   if(!ready)return<div className="loading"><div className="spinner"/><div style={{fontSize:10,letterSpacing:3,color:"var(--text3)"}}>LOADING…</div></div>;
   if(!sess)return<Auth onLogin={login}/>;
-  return<Dashboard session={sess} onLogout={logout}/>;
+  // Check subscription — DEV account always passes
+  const status=subStatus(sess.username);
+  if(!sess.isDev && !status.active){
+    return<SubscriptionWall username={sess.username} onActivated={()=>setSess({...sess})}/>;
+  }
+  return<Dashboard session={sess} subStatus={status} onLogout={logout}/>;
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────
-function Dashboard({session,onLogout}){
+function Dashboard({session,subStatus,onLogout}){
   const u=session.username;
   const [view,setView]=useState("dashboard");
   const contentRef=useRef(null);
@@ -885,6 +1068,7 @@ function Dashboard({session,onLogout}){
     {id:"workpay",label:"W&P",icon:"wap"},
     {id:"reports",label:"Reports",icon:"report"},
     {id:"transfer",label:"Data",icon:"transfer"},
+    ...(session.isDev?[{id:"admin",label:"Admin",icon:"drivers"}]:[]),
   ];
   const period={selYear,selMonth,setSelYear,setSelMonth};
 
@@ -916,6 +1100,13 @@ function Dashboard({session,onLogout}){
             <div className={`sync-dot ${syncState}`}/>
             <span style={{fontSize:9,letterSpacing:1,color:"var(--text3)",textTransform:"uppercase"}}>{syncLabel}</span>
           </div>
+          {/* Subscription status */}
+          {subStatus&&<div style={{marginBottom:10,padding:"8px 10px",background:"var(--bg)",borderRadius:6,border:`1px solid ${subStatus.trial?"#f5a62344":subStatus.active?"#22c55e44":"#ef444444"}`}}>
+            <div style={{fontSize:8,letterSpacing:2,color:"var(--text3)",marginBottom:3}}>SUBSCRIPTION</div>
+            {subStatus.trial&&<div style={{fontSize:10,color:"var(--gold)",fontWeight:600}}>{subStatus.daysLeft}d free trial left</div>}
+            {subStatus.active&&!subStatus.trial&&<div style={{fontSize:10,color:"var(--green)",fontWeight:600}}>{PLANS[subStatus.plan]?.name} — Active</div>}
+            {!subStatus.active&&<div style={{fontSize:10,color:"var(--red)",fontWeight:600}}>Expired</div>}
+          </div>}
           {installable&&<button className="btn" style={{width:"100%",marginBottom:10,fontSize:10,padding:"8px 12px"}} onClick={()=>window.__pwaPrompt&&window.__pwaPrompt()}>
             ⬇ Install App
           </button>}
@@ -957,6 +1148,7 @@ function Dashboard({session,onLogout}){
           {view==="workpay"  &&<VWap wapD={wapD} wap={wap} updWap={updWap} {...period}/>}
           {view==="reports"  &&<VReports regD={regD} wapD={wapD} drivers={drivers} sales={sales} wap={wap} {...period} onExport={doExport}/>}
           {view==="transfer" &&<VTransfer drivers={drivers} sales={sales} wap={wap} session={session} onExport={doExport} onImport={()=>setImportModal(true)}/>}
+          {view==="admin"    &&session.isDev&&<VAdmin/>}
           </div>
         </div>
       </div>
@@ -1452,6 +1644,129 @@ function InstallGuide(){
       <div style={{fontSize:12,fontWeight:700,color:"var(--blue)",marginBottom:6}}>💻 Install on Desktop (Chrome/Edge)</div>
       <div style={{fontSize:11,color:"var(--text2)",lineHeight:1.8}}>
         Click the <strong style={{color:"var(--text)"}}>install icon</strong> in the address bar (looks like a computer with a down arrow), or go to browser menu → <strong style={{color:"var(--text)"}}>Install Pragya Manager</strong>.
+      </div>
+    </div>
+  );
+}
+
+// ── ADMIN PANEL (DEV account only) — activate users ──────────
+function VAdmin(){
+  const [users,setUsers]=useState({});
+  const [pending,setPending]=useState([]);
+  const [search,setSearch]=useState("");
+  const [msg,setMsg]=useState(null);
+  const [loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    async function load(){
+      const u=await getUsers();
+      setUsers(u);
+      // Load pending payments from Firestore
+      if(db){
+        const snap=await db.collection("pending_payments").get();
+        setPending(snap.docs.map(d=>({id:d.id,...d.data()})));
+      }
+      setLoading(false);
+    }
+    load();
+  },[]);
+
+  async function activate(username,plan,days=30){
+    const paidUntil=Date.now()+days*86400000;
+    const data={plan,paid:true,paidUntil,activatedAt:Date.now(),activatedBy:DEV_U};
+    setSub(username,data);
+    if(db){
+      await db.collection("subscriptions").doc(username).set(data);
+      await db.collection("pending_payments").doc(username).delete();
+    }
+    setPending(p=>p.filter(x=>x.id!==username));
+    setMsg({type:"ok",text:`✓ ${username} activated on ${PLANS[plan]?.name||plan} for ${days} days`});
+    setTimeout(()=>setMsg(null),3000);
+  }
+
+  async function deactivate(username){
+    const data={plan:null,paid:false,paidUntil:0};
+    setSub(username,data);
+    if(db) await db.collection("subscriptions").doc(username).set(data);
+    setMsg({type:"warn",text:`${username} deactivated`});
+    setTimeout(()=>setMsg(null),3000);
+  }
+
+  const allUsers=Object.keys(users).filter(u=>u!==DEV_U&&u.includes(search.toLowerCase()));
+
+  if(loading)return<div style={{textAlign:"center",padding:40,color:"var(--text3)"}}>Loading…</div>;
+
+  return(
+    <div>
+      {/* Pending payments — show first */}
+      {pending.length>0&&(
+        <div className="card" style={{marginBottom:14,border:"1px solid var(--gold)"}}>
+          <div className="sec-title" style={{color:"var(--gold)"}}>🔔 Pending Payments ({pending.length})</div>
+          {pending.map(p=>{
+            const plan=PLANS[p.plan];
+            const age=Math.floor((Date.now()-p.requestedAt)/60000);
+            return(
+              <div key={p.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 0",borderBottom:"1px solid var(--border)",gap:10,flexWrap:"wrap"}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:"var(--text)",marginBottom:3}}>{p.id}</div>
+                  <div style={{fontSize:11,color:"var(--text3)"}}>{plan?.name} · {plan?.priceLabel} · {age}m ago</div>
+                </div>
+                <div style={{display:"flex",gap:7,flexShrink:0}}>
+                  {Object.values(PLANS).map(pl=>(
+                    <button key={pl.id} className={pl.id===p.plan?"btn":"btn-sm"} style={{padding:"7px 12px",fontSize:9}} onClick={()=>activate(p.id,pl.id,30)}>
+                      ✓ {pl.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {msg&&<div className={`notice ${msg.type==="ok"?"notice-ok":"notice-warn"}`}>{msg.text}</div>}
+
+      {/* All users */}
+      <div className="card">
+        <div className="sec-title">All Users ({allUsers.length})</div>
+        <input className="inp" placeholder="Search username…" value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:14}}/>
+        {allUsers.length===0&&<div style={{fontSize:11,color:"var(--text3)",padding:"8px 0"}}>No users yet.</div>}
+        {allUsers.map(u=>{
+          const status=subStatus(u);
+          const usr=users[u];
+          return(
+            <div key={u} style={{padding:"12px 0",borderBottom:"1px solid var(--border)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
+                <div>
+                  <div style={{fontWeight:700,fontSize:13,color:"var(--text)",marginBottom:2}}>@{u}</div>
+                  <div style={{fontSize:11,color:"var(--text3)",marginBottom:5}}>{usr?.business||"—"}</div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {status.trial&&<span style={{fontSize:9,color:"var(--gold)",background:"#f5a62322",padding:"2px 8px",borderRadius:99,border:"1px solid #f5a62344"}}>{status.daysLeft}d trial left</span>}
+                    {status.active&&!status.trial&&<span style={{fontSize:9,color:"var(--green)",background:"#22c55e22",padding:"2px 8px",borderRadius:99,border:"1px solid #22c55e44"}}>{PLANS[status.plan]?.name} · Active</span>}
+                    {status.expired&&<span style={{fontSize:9,color:"var(--red)",background:"#ef444422",padding:"2px 8px",borderRadius:99,border:"1px solid #ef444444"}}>Expired</span>}
+                    {status.paidUntil&&<span style={{fontSize:9,color:"var(--text3)"}}>until {new Date(status.paidUntil).toLocaleDateString()}</span>}
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap",flexShrink:0}}>
+                  {Object.values(PLANS).map(pl=>(
+                    <button key={pl.id} className="btn-sm" style={{fontSize:9,padding:"5px 10px"}} onClick={()=>activate(u,pl.id,30)}>
+                      +{pl.name}
+                    </button>
+                  ))}
+                  {status.active&&<button className="btn-danger" style={{fontSize:9,padding:"5px 10px"}} onClick={()=>deactivate(u)}>Revoke</button>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{marginTop:16,padding:"14px 16px",background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:8,fontSize:11,color:"var(--text3)",lineHeight:1.8}}>
+        <strong style={{color:"var(--text2)"}}>How it works:</strong><br/>
+        1. User pays MoMo to your number and WhatsApps their username<br/>
+        2. They appear in <strong style={{color:"var(--gold)"}}>Pending Payments</strong> above<br/>
+        3. You tap <strong style={{color:"var(--gold)"}}>✓ Activate</strong> — they get instant access<br/>
+        4. Their subscription is stored in Firebase — works on all their devices
       </div>
     </div>
   );
